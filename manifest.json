@@ -1,0 +1,14 @@
+
+{
+  "id": "/",
+  "name": "Контур — Энергетическая головоломка",
+  "short_name": "Контур",
+  "description": "Соединяй проводники и решай головоломки.",
+  "lang": "ru",
+  "start_url": "/kontur-game/",
+  "scope": "/kontur-game/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#101827",
+  "theme_color": "#101827"
+}
