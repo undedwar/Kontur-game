@@ -1,11 +1,13 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#101827">
+<meta name="description" content="КОНТУР — Энергия. Собирай электрические цепи, проходи головоломки и зарабатывай звёзды.">
 <title>КОНТУР — Энергия</title>
-<link rel="manifest" href="./manifest.json">
+
 <style>
 :root {
   --bg:#101827;
@@ -15,6 +17,7 @@
   --muted:#9eafc5;
   --mint:#70f0c4;
   --gold:#ffd166;
+  --pink:#ff8fbc;
 }
 * { box-sizing:border-box; }
 body {
@@ -27,14 +30,23 @@ body {
   display:flex;
   justify-content:center;
 }
-main { width:100%;max-width:430px; }
-button { font:inherit;cursor:pointer; }
-button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
-.brand { text-align:center;padding:8px 0 15px; }
-.brand h1 {
-  color:var(--mint);letter-spacing:5px;font-size:31px;margin:0;
+main { width:100%; max-width:430px; }
+button { font:inherit; cursor:pointer; }
+button:focus-visible {
+  outline:2px solid var(--mint);
+  outline-offset:3px;
 }
-.brand p { color:var(--muted);font-size:12px;margin:5px 0; }
+button:disabled { cursor:default; }
+
+.brand { text-align:center; padding:8px 0 15px; }
+.brand h1 {
+  color:var(--mint);
+  letter-spacing:5px;
+  font-size:31px;
+  margin:0;
+}
+.brand p { color:var(--muted); font-size:12px; margin:5px 0; }
+
 .panel {
   background:var(--panel);
   border:1px solid var(--line);
@@ -49,10 +61,15 @@ button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
   border:1px solid #315264;
   border-radius:20px;
 }
-.logo-art { margin:8px auto 18px;width:100px;height:100px; }
-.logo-art svg { width:100%;height:100%; }
-.hero-title { font-size:23px;font-weight:800; }
-.hero-copy { color:var(--muted);font-size:13px;line-height:1.6;margin:8px 0 18px; }
+.logo-art { margin:8px auto 18px; width:100px; height:100px; }
+.logo-art svg { width:100%; height:100%; }
+.hero-title { font-size:23px; font-weight:800; }
+.hero-copy {
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+  margin:8px 0 18px;
+}
 .action {
   width:100%;
   padding:14px;
@@ -64,19 +81,11 @@ button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
   font-weight:750;
   font-size:15px;
 }
+.action:active { transform:scale(.99); }
 .secondary {
   background:#26364b;
   border:1px solid #3a4d65;
   color:var(--text);
-}
-.small-action {
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid var(--line);
-  background:#192638;
-  color:var(--text);
-  font-size:13px;
 }
 .stats-row {
   display:grid;
@@ -84,28 +93,51 @@ button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
   gap:10px;
   margin:12px 0;
 }
-.stat { text-align:center;padding:13px 8px; }
-.stat strong { display:block;font-size:23px;color:var(--mint); }
-.stat span { color:var(--muted);font-size:11px; }
-.section-title { font-size:18px;font-weight:750;margin:12px 0; }
-.muted { color:var(--muted);font-size:13px;line-height:1.6; }
+.stat { text-align:center; padding:13px 8px; }
+.stat strong {
+  display:block;
+  font-size:23px;
+  color:var(--mint);
+}
+.stat span { color:var(--muted); font-size:11px; }
+
+.muted { color:var(--muted); font-size:13px; line-height:1.6; }
 .hidden { display:none !important; }
 
-/* Карта уровней */
 .map-top {
-  display:flex;align-items:center;gap:12px;margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
 }
 .back {
   flex-shrink:0;
-  width:42px;height:42px;
+  width:42px;
+  height:42px;
   border:1px solid var(--line);
   background:var(--panel);
   color:var(--text);
   border-radius:12px;
   font-size:20px;
 }
-.map-top h2 { margin:0;font-size:20px; }
-.map-top p { margin:3px 0 0;color:var(--muted);font-size:12px; }
+.map-top h2 { margin:0; font-size:20px; }
+.map-top p { margin:3px 0 0; color:var(--muted); font-size:12px; }
+
+.progress-track {
+  height:7px;
+  background:#26364b;
+  border-radius:10px;
+  overflow:hidden;
+  margin:9px 0;
+}
+.progress-fill {
+  height:100%;
+  width:0;
+  background:var(--mint);
+  border-radius:10px;
+  transition:width .25s;
+}
+
 .map-grid {
   display:grid;
   grid-template-columns:repeat(5,minmax(0,1fr));
@@ -113,7 +145,6 @@ button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
   margin:15px 0;
 }
 .level-tile {
-  position:relative;
   min-width:0;
   aspect-ratio:1;
   padding:3px 0;
@@ -132,25 +163,13 @@ button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
   background:#193b3b;
 }
 .level-tile.locked { opacity:.42; }
-.level-tile .number { font-size:17px;font-weight:750; }
-.level-tile .mini-stars { font-size:9px;letter-spacing:0;color:var(--gold); }
+.level-tile .number { font-size:17px; font-weight:750; }
+.level-tile .mini-stars {
+  font-size:9px;
+  color:var(--gold);
+}
 .level-tile .lock { font-size:15px; }
-.progress-track {
-  height:7px;
-  background:#26364b;
-  border-radius:10px;
-  overflow:hidden;
-  margin:9px 0;
-}
-.progress-fill {
-  height:100%;
-  width:0;
-  background:var(--mint);
-  border-radius:10px;
-  transition:width .25s;
-}
 
-/* Игровое поле */
 .message {
   padding:13px;
   margin:4px 0 12px;
@@ -181,27 +200,35 @@ button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
   touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;
 }
-.cell.empty { background:#131e2d;border-color:#202d3e; }
-.cell.block { background:#293144;border-color:#3b465a; }
-.cell.block:after { content:"✕";color:#64738a;font-size:21px; }
+.cell.empty { background:#131e2d; border-color:#202d3e; }
+.cell.block { background:#293144; border-color:#3b465a; }
+.cell.block:after { content:"✕"; color:#64738a; font-size:21px; }
 .cell.energized {
   background:#1b3a3b;
-  border-color:var(--energy,#70f0c4);
+  border-color:var(--energy,var(--mint));
 }
-.cell.source { border-color:#70f0c4;background:#193b3b; }
-.cell.target { border-color:#ff8fbc;background:#39283d; }
-.cell.hint { outline:3px solid var(--gold);outline-offset:-3px; }
-.wire { position:absolute;inset:0;color:#6e83a2;pointer-events:none; }
+.cell.source { border-color:var(--mint); background:#193b3b; }
+.cell.target { border-color:var(--pink); background:#39283d; }
+.cell.hint { outline:3px solid var(--gold); outline-offset:-3px; }
+
+.wire {
+  position:absolute;
+  inset:0;
+  color:#6e83a2;
+  pointer-events:none;
+}
 .cell.energized .wire {
-  color:var(--energy,#70f0c4);
-  filter:drop-shadow(0 0 4px var(--energy,#70f0c4));
+  color:var(--energy,var(--mint));
+  filter:drop-shadow(0 0 4px var(--energy,var(--mint)));
 }
-.cell.source .wire { color:#70f0c4; }
-.cell.target .wire { color:#ff8fbc; }
+.cell.source .wire { color:var(--mint); }
+.cell.target .wire { color:var(--pink); }
 .arm {
   position:absolute;
-  left:50%;top:calc(50% - 4px);
-  width:50%;height:8px;
+  left:50%;
+  top:calc(50% - 4px);
+  width:50%;
+  height:8px;
   border-radius:8px;
   background:currentColor;
   transform-origin:left center;
@@ -209,25 +236,37 @@ button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
 .arm.diagonal { width:71%; }
 .core {
   position:absolute;
-  width:13px;height:13px;
+  width:13px;
+  height:13px;
   left:calc(50% - 6.5px);
   top:calc(50% - 6.5px);
   border-radius:50%;
   background:currentColor;
 }
 .marker {
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   font-size:clamp(16px,5vw,23px);
-  z-index:2;pointer-events:none;
+  z-index:2;
+  pointer-events:none;
 }
 .game-stats {
-  display:flex;justify-content:space-between;gap:8px;
-  margin:13px 2px;color:#c1cee0;font-size:13px;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  margin:13px 2px;
+  color:#c1cee0;
+  font-size:13px;
 }
 .stars {
-  text-align:center;color:#52647a;font-size:29px;
-  letter-spacing:5px;margin:6px 0;
+  text-align:center;
+  color:#52647a;
+  font-size:29px;
+  letter-spacing:5px;
+  margin:6px 0;
 }
 .stars .earned { color:var(--gold); }
 .game-actions {
@@ -235,13 +274,17 @@ button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:8px;
 }
-.game-actions .action { margin-top:8px;padding:12px 6px;font-size:13px; }
+.game-actions .action { margin-top:8px; padding:12px 6px; font-size:13px; }
 .footer-note {
-  margin:15px 0 0;text-align:center;
-  color:var(--muted);font-size:11px;line-height:1.6;
+  margin:15px 0 0;
+  text-align:center;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.6;
 }
 </style>
 </head>
+
 <body>
 <main>
   <header class="brand">
@@ -249,18 +292,23 @@ button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
     <p>СОБЕРИ ЦЕПЬ. ЗАПУСТИ ЭНЕРГИЮ.</p>
   </header>
 
-  <!-- ГЛАВНОЕ МЕНЮ -->
+  <!-- Главное меню -->
   <section id="homeScreen">
     <div class="menu-hero">
       <div class="logo-art">
         <svg viewBox="0 0 100 100" fill="none" aria-label="Логотип Контура">
-          <rect x="4" y="4" width="92" height="92" rx="22" stroke="#315264" stroke-width="2"/>
-          <path d="M20 30H40V50H60V70H80" stroke="#70f0c4" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="4" y="4" width="92" height="92" rx="22"
+                stroke="#315264" stroke-width="2"/>
+          <path d="M20 30H40V50H60V70H80"
+                stroke="#70f0c4" stroke-width="6"
+                stroke-linecap="round" stroke-linejoin="round"/>
           <circle cx="20" cy="30" r="7" fill="#70f0c4"/>
           <circle cx="80" cy="70" r="7" fill="#ff8fbc"/>
-          <path d="M55 18L43 39H55L47 54L67 30H55L62 18Z" fill="#ffd166"/>
+          <path d="M55 18L43 39H55L47 54L67 30H55L62 18Z"
+                fill="#ffd166"/>
         </svg>
       </div>
+
       <div class="hero-title">Подключи энергию</div>
       <p class="hero-copy">
         Поворачивай проводники, ищи правильный маршрут
@@ -290,10 +338,10 @@ button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
         <div class="progress-fill" id="homeProgressBar"></div>
       </div>
     </div>
-    <p class="footer-note">КОНТУР · Ранний игровой прототип</p>
+    <p class="footer-note">КОНТУР · Игровой прототип</p>
   </section>
 
-  <!-- КАРТА УРОВНЕЙ -->
+  <!-- Карта уровней -->
   <section id="mapScreen" class="hidden">
     <div class="map-top">
       <button class="back" id="mapBack" aria-label="Назад">‹</button>
@@ -322,7 +370,7 @@ button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
     <button class="action secondary" id="mapHome">Главное меню</button>
   </section>
 
-  <!-- ИГРОВОЙ ЭКРАН -->
+  <!-- Игровой экран -->
   <section id="gameScreen" class="hidden">
     <div class="map-top">
       <button class="back" id="gameBack" aria-label="Назад к карте">‹</button>
@@ -342,14 +390,20 @@ button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
       <span id="movesLabel">Ходы: 0</span>
       <span id="bestLabel">Рекорд: —</span>
     </div>
+
     <div class="stars" id="stars">☆☆☆</div>
 
     <div class="game-actions">
       <button class="action secondary" id="hintButton">💡 Подсказка</button>
       <button class="action secondary" id="resetButton">↻ Заново</button>
     </div>
-    <button class="action hidden" id="nextLevelButton">Следующий уровень →</button>
-    <button class="action secondary" id="gameMapButton">К карте уровней</button>
+
+    <button class="action hidden" id="nextLevelButton">
+      Следующий уровень →
+    </button>
+    <button class="action secondary" id="gameMapButton">
+      К карте уровней
+    </button>
 
     <p class="footer-note">
       Нажимай на проводник, чтобы повернуть его.
@@ -361,6 +415,7 @@ button:focus-visible { outline:2px solid var(--mint);outline-offset:3px; }
 <script>
 "use strict";
 
+/* Настройки игры */
 const TOTAL_LEVELS = 25;
 const SIZE = 5;
 const START = 10;
@@ -376,10 +431,11 @@ const DIRS = [
   {dr:0,dc:-1,angle:180},
   {dr:-1,dc:-1,angle:225}
 ];
+
 const BITS = DIRS.map((_,i)=>1<<i);
 const COLORS = ["#70f0c4","#65b8ff","#c4a0ff","#ffbd69","#ff8fbc"];
-
 const $ = id => document.getElementById(id);
+
 const board = $("board");
 const statusBox = $("status");
 const movesLabel = $("movesLabel");
@@ -396,29 +452,44 @@ let random = Math.random;
 let hintTimer = null;
 let best = loadSave();
 
+/* Сохранения */
 function loadSave() {
   const fallback = {unlocked:1,records:{}};
+
   try {
-    // Переносим сохранения из предыдущих прототипов.
-    const current = localStorage.getItem("contour_v5");
-    if (current) {
-      const data = JSON.parse(current);
-      return {
-        unlocked:Math.max(1,Math.min(TOTAL_LEVELS,data.unlocked||1)),
-        records:data.records||{}
-      };
+    let raw = localStorage.getItem("contour_v5");
+
+    if (!raw) {
+      raw = localStorage.getItem("contour_v4")
+        || localStorage.getItem("contour_v3");
     }
 
-    const old = JSON.parse(
-      localStorage.getItem("contour_v4") ||
-      localStorage.getItem("contour_v3") || "{}"
-    );
+    if (!raw) return fallback;
+
+    const data = JSON.parse(raw);
+    const records = {};
+
+    if (data.records && typeof data.records === "object") {
+      for (let i=1; i<=TOTAL_LEVELS; i++) {
+        const r = data.records[String(i)];
+
+        if (r && Number.isFinite(r.moves) &&
+            Number.isFinite(r.stars)) {
+          records[String(i)] = {
+            moves:Math.max(0,Math.floor(r.moves)),
+            stars:Math.max(1,Math.min(3,Math.floor(r.stars)))
+          };
+        }
+      }
+    }
 
     return {
-      unlocked:Math.max(1,Math.min(TOTAL_LEVELS,old.unlocked||1)),
-      records:old.records||{}
+      unlocked:Math.max(1,Math.min(
+        TOTAL_LEVELS,Math.floor(Number(data.unlocked)||1)
+      )),
+      records
     };
-  } catch(e) {
+  } catch (error) {
     return fallback;
   }
 }
@@ -426,9 +497,12 @@ function loadSave() {
 function save() {
   try {
     localStorage.setItem("contour_v5",JSON.stringify(best));
-  } catch(e) {}
+  } catch (error) {
+    console.warn("Не удалось сохранить прогресс.",error);
+  }
 }
 
+/* Случайные числа с фиксированным начальным значением */
 function seededRandom(seed) {
   return function() {
     seed |= 0;
@@ -440,7 +514,7 @@ function seededRandom(seed) {
 }
 
 function shuffle(array) {
-  for(let i=array.length-1;i>0;i--) {
+  for (let i=array.length-1; i>0; i--) {
     const j=Math.floor(random()*(i+1));
     [array[i],array[j]]=[array[j],array[i]];
   }
@@ -449,65 +523,87 @@ function shuffle(array) {
 
 function rotateMask(mask) {
   let result=0;
-  for(let i=0;i<8;i++) {
-    if(mask & BITS[i]) result |= BITS[(i+1)%8];
+  for (let i=0; i<8; i++) {
+    if (mask & BITS[i]) result |= BITS[(i+1)%8];
   }
   return result;
 }
 
 function neighbor(index,d) {
-  const r=Math.floor(index/SIZE), c=index%SIZE;
-  const nr=r+DIRS[d].dr, nc=c+DIRS[d].dc;
-  if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) return -1;
+  const r=Math.floor(index/SIZE);
+  const c=index%SIZE;
+  const nr=r+DIRS[d].dr;
+  const nc=c+DIRS[d].dc;
+
+  if (nr<0 || nr>=SIZE || nc<0 || nc>=SIZE) return -1;
   return nr*SIZE+nc;
 }
 
 function directionBetween(a,b) {
-  const ar=Math.floor(a/SIZE),ac=a%SIZE;
-  const br=Math.floor(b/SIZE),bc=b%SIZE;
-  return DIRS.findIndex(d=>d.dr===br-ar&&d.dc===bc-ac);
+  const ar=Math.floor(a/SIZE), ac=a%SIZE;
+  const br=Math.floor(b/SIZE), bc=b%SIZE;
+
+  return DIRS.findIndex(d =>
+    d.dr===br-ar && d.dc===bc-ac
+  );
 }
 
-function opposite(d) { return (d+4)%8; }
+function opposite(d) {
+  return (d+4)%8;
+}
 
+function turnsToMatch(current,target) {
+  let mask=current;
+
+  for (let i=0; i<8; i++) {
+    if (mask===target) return i;
+    mask=rotateMask(mask);
+  }
+
+  return 0;
+}
+
+/* Генерация маршрута */
 function generateRoute() {
   const path=[START];
   const visited=new Set(path);
 
   function dfs(current) {
-    if(current===TARGET) return path.length>=8;
-    if(path.length>=20) return false;
+    if (current===TARGET) return path.length>=8;
+    if (path.length>=20) return false;
 
     const candidates=shuffle(
       DIRS.map((_,d)=>neighbor(current,d))
-        .filter(i=>i>=0&&!visited.has(i))
+        .filter(i=>i>=0 && !visited.has(i))
     );
 
-    for(const next of candidates) {
-      if(next===TARGET&&path.length<7) continue;
+    for (const next of candidates) {
+      if (next===TARGET && path.length<7) continue;
+
       visited.add(next);
       path.push(next);
-      if(dfs(next)) return true;
+
+      if (dfs(next)) return true;
+
       path.pop();
       visited.delete(next);
     }
+
     return false;
   }
 
-  if(dfs(START)) return [...path];
-  return [10,11,6,7,12,13,14];
+  if (dfs(START)) return [...path];
+
+  return [10,5,1,2,8,4,14];
 }
 
-function turnsToMatch(current,target) {
-  let mask=current;
-  for(let i=0;i<8;i++) {
-    if(mask===target) return i;
-    mask=rotateMask(mask);
-  }
-  return 0;
-}
-
+/* Создание уровня */
 function generateLevel() {
+  if (hintTimer) {
+    clearTimeout(hintTimer);
+    hintTimer=null;
+  }
+
   random=seededRandom(currentLevel*7919+451);
   cells=Array(SIZE*SIZE).fill(null);
   solution=Array(SIZE*SIZE).fill(0);
@@ -515,26 +611,42 @@ function generateLevel() {
   won=false;
   optimalMoves=0;
 
-  board.style.setProperty("--energy",COLORS[(currentLevel-1)%COLORS.length]);
+  board.style.setProperty(
+    "--energy",COLORS[(currentLevel-1)%COLORS.length]
+  );
 
   const route=generateRoute();
 
-  for(let i=0;i<route.length;i++) {
+  for (let i=0; i<route.length; i++) {
     let mask=0;
-    if(i>0) mask|=BITS[directionBetween(route[i],route[i-1])];
-    if(i<route.length-1) mask|=BITS[directionBetween(route[i],route[i+1])];
+
+    if (i>0) {
+      mask |= BITS[directionBetween(route[i],route[i-1])];
+    }
+
+    if (i<route.length-1) {
+      mask |= BITS[directionBetween(route[i],route[i+1])];
+    }
+
     solution[route[i]]=mask;
   }
 
-  for(const index of route) {
-    const fixed=index===START||index===TARGET;
+  for (const index of route) {
+    const fixed=index===START || index===TARGET;
     const correct=solution[index];
     let mask=correct;
 
-    if(!fixed) {
+    if (!fixed) {
       const turns=1+Math.floor(random()*7);
-      for(let k=0;k<turns;k++) mask=rotateMask(mask);
-      while(mask===correct) mask=rotateMask(mask);
+
+      for (let k=0; k<turns; k++) {
+        mask=rotateMask(mask);
+      }
+
+      while (mask===correct) {
+        mask=rotateMask(mask);
+      }
+
       optimalMoves+=turnsToMatch(mask,correct);
     }
 
@@ -542,7 +654,8 @@ function generateLevel() {
       mask,
       solutionMask:correct,
       fixed,
-      kind:index===START?"source":index===TARGET?"target":"wire"
+      kind:index===START ? "source" :
+           index===TARGET ? "target" : "wire"
     };
   }
 
@@ -551,35 +664,46 @@ function generateLevel() {
       .filter(i=>!route.includes(i))
   );
 
-  const obstacleCount=Math.min(3+Math.floor(currentLevel/3),7);
-  for(let i=0;i<obstacleCount&&i<available.length;i++) {
+  const obstacleCount=Math.min(
+    3+Math.floor(currentLevel/3),7
+  );
+
+  for (let i=0; i<obstacleCount && i<available.length; i++) {
     cells[available[i]]={kind:"block",fixed:true};
   }
 
+  $("gameTitle").textContent="Уровень "+currentLevel;
+
+  const energyNames=["мятная","синяя","фиолетовая","янтарная","розовая"];
+  $("gameSubtitle").textContent=
+    "Энергия "+energyNames[(currentLevel-1)%5];
+
+  nextLevelButton.classList.add("hidden");
+  nextLevelButton.disabled=false;
+
+  statusBox.textContent="Поворачивай провода, чтобы соединить цепь.";
+
   renderBoard();
   updatePath();
-  $("gameTitle").textContent="Уровень "+currentLevel;
-  $("gameSubtitle").textContent=
-    "Энергия "+(currentLevel%5===1?"мятная":
-    currentLevel%5===2?"синяя":
-    currentLevel%5===3?"фиолетовая":
-    currentLevel%5===4?"янтарная":"розовая");
-  $("nextLevelButton").classList.add("hidden");
 }
 
+/* Отрисовка проводников */
 function drawWire(button,mask) {
   let wire=button.querySelector(".wire");
-  if(!wire) {
+
+  if (!wire) {
     wire=document.createElement("span");
     wire.className="wire";
     button.appendChild(wire);
   }
+
   wire.innerHTML="";
 
-  for(let d=0;d<8;d++) {
-    if(!(mask&BITS[d])) continue;
+  for (let d=0; d<8; d++) {
+    if (!(mask & BITS[d])) continue;
+
     const arm=document.createElement("span");
-    arm.className="arm"+(d%2===1?" diagonal":"");
+    arm.className="arm"+(d%2===1 ? " diagonal" : "");
     arm.style.transform=`rotate(${DIRS[d].angle}deg)`;
     wire.appendChild(arm);
   }
@@ -594,9 +718,10 @@ function renderBoard() {
 
   cells.forEach((cell,index)=>{
     const button=document.createElement("button");
+    button.type="button";
     button.className="cell";
 
-    if(!cell) {
+    if (!cell) {
       button.classList.add("empty");
       button.disabled=true;
       button.setAttribute("aria-label","Пустая клетка");
@@ -604,7 +729,7 @@ function renderBoard() {
       return;
     }
 
-    if(cell.kind==="block") {
+    if (cell.kind==="block") {
       button.classList.add("block");
       button.disabled=true;
       button.setAttribute("aria-label","Препятствие");
@@ -612,28 +737,30 @@ function renderBoard() {
       return;
     }
 
-    if(cell.kind==="source") button.classList.add("source");
-    if(cell.kind==="target") button.classList.add("target");
+    if (cell.kind==="source") button.classList.add("source");
+    if (cell.kind==="target") button.classList.add("target");
 
     button.setAttribute(
       "aria-label",
-      cell.kind==="source"?"Источник энергии":
-      cell.kind==="target"?"Цель":"Повернуть проводник"
+      cell.kind==="source" ? "Источник энергии" :
+      cell.kind==="target" ? "Цель" : "Повернуть проводник"
     );
 
     drawWire(button,cell.mask);
 
-    if(cell.kind!=="wire") {
+    if (cell.kind!=="wire") {
       const marker=document.createElement("span");
       marker.className="marker";
-      marker.textContent=cell.kind==="source"?"⚡":"◎";
+      marker.textContent=cell.kind==="source" ? "⚡" : "◎";
       button.appendChild(marker);
     }
 
     button.addEventListener("click",()=>{
-      if(won||cell.fixed) return;
+      if (won || cell.fixed) return;
+
       cell.mask=rotateMask(cell.mask);
       moves++;
+
       drawWire(button,cell.mask);
       updatePath();
     });
@@ -642,35 +769,41 @@ function renderBoard() {
   });
 }
 
+/* Поиск соединённой цепи */
 function findPath() {
   const queue=[START];
   const parent=new Map([[START,-1]]);
 
-  while(queue.length) {
+  while (queue.length) {
     const current=queue.shift();
 
-    if(current===TARGET) {
+    if (current===TARGET) {
       const path=[];
       let at=TARGET;
-      while(at!==-1) {
+
+      while (at!==-1) {
         path.push(at);
         at=parent.get(at);
       }
+
       return path;
     }
 
     const cell=cells[current];
-    if(!cell) continue;
+    if (!cell) continue;
 
-    for(let d=0;d<8;d++) {
-      if(!(cell.mask&BITS[d])) continue;
+    for (let d=0; d<8; d++) {
+      if (!(cell.mask & BITS[d])) continue;
 
       const next=neighbor(current,d);
-      if(next<0||parent.has(next)) continue;
+
+      if (next<0 || parent.has(next)) continue;
 
       const other=cells[next];
-      if(!other||other.kind==="block") continue;
-      if(!(other.mask&BITS[opposite(d)])) continue;
+
+      if (!other || other.kind==="block") continue;
+
+      if (!(other.mask & BITS[opposite(d)])) continue;
 
       parent.set(next,current);
       queue.push(next);
@@ -678,160 +811,137 @@ function findPath() {
   }
 
   return null;
-
-function updatePath() {
-  const path = findPath();
-
-  // Проверяем все проводники, входящие
-  // в правильное решение уровня.
-  const allCorrect = solution.every((mask, index) => {
-    if (mask === 0) return true;
-
-    const cell = cells[index];
-    return !!cell && cell.mask === mask;
-  });
-
-  const solved = !!path && allCorrect;
-  const buttons = board.querySelectorAll(".cell");
-
-  buttons.forEach(button =>
-    button.classList.remove("energized", "hint")
-  );
-
-  if (path) {
-    path.forEach(index =>
-      buttons[index].classList.add("energized")
-    );
-  }
-
-  movesLabel.textContent = "Ходы: " + moves;
-  updateRecord();
-
-  if (solved && !won) {
-    won = true;
-
-    const stars = calculateStars();
-    const key = String(currentLevel);
-    const old = best.records[key];
-
-    if (
-      !old ||
-      stars > old.stars ||
-      (stars === old.stars && moves < old.moves)
-    ) {
-      best.records[key] = { stars, moves };
-    }
-
-    best.unlocked = Math.max(
-      best.unlocked || 1,
-      Math.min(TOTAL_LEVELS, currentLevel + 1)
-    );
-
-    save();
-    updateStars(stars);
-
-    statusBox.textContent =
-      `⚡ Победа! ${stars} из 3 звёзд за ${moves} ходов.`;
-
-    $("nextLevelButton").classList.remove("hidden");
-    $("nextLevelButton").textContent =
-      currentLevel < TOTAL_LEVELS
-        ? "Следующий уровень →"
-        : "Карта завершена — сыграть снова";
-
-    updateRecord();
-
-  } else if (!won) {
-    updateStars(0);
-
-    statusBox.textContent = path
-      ? "Маршрут найден, но не все проводники правильно ориентированы."
-      : "Путь не подключён. Поворачивай проводники!";
-  }
 }
 
-
+/* Звёзды и рекорды */
 function calculateStars() {
-  if(moves<=optimalMoves) return 3;
-  if(moves<=optimalMoves+3) return 2;
+  if (moves<=optimalMoves) return 3;
+  if (moves<=optimalMoves+3) return 2;
   return 1;
 }
 
 function updateStars(count) {
   starsBox.innerHTML="";
-  for(let i=1;i<=3;i++) {
-    const s=document.createElement("span");
-    s.textContent=i<=count?"★":"☆";
-    if(i<=count) s.className="earned";
-    starsBox.appendChild(s);
+
+  for (let i=1; i<=3; i++) {
+    const star=document.createElement("span");
+    star.textContent=i<=count ? "★" : "☆";
+
+    if (i<=count) star.className="earned";
+
+    starsBox.appendChild(star);
   }
 }
 
 function updateRecord() {
-  const r=best.records[String(currentLevel)];
-  $("bestLabel").textContent=r?`Рекорд: ${r.moves} ходов`:"Рекорд: —";
+  const record=best.records[String(currentLevel)];
+
+  $("bestLabel").textContent=record
+    ? `Рекорд: ${record.moves} ходов`
+    : "Рекорд: —";
 }
 
 function updatePath() {
   const path=findPath();
   const buttons=board.querySelectorAll(".cell");
 
-  buttons.forEach(b=>b.classList.remove("energized","hint"));
-  if(path) path.forEach(i=>buttons[i].classList.add("energized"));
+  buttons.forEach(button=>
+    button.classList.remove("energized","hint")
+  );
+
+  if (path) {
+    path.forEach(index=>{
+      buttons[index].classList.add("energized");
+    });
+  }
 
   movesLabel.textContent="Ходы: "+moves;
   updateRecord();
 
-  if(path&&!won) {
+  if (path && !won) {
     won=true;
+
     const stars=calculateStars();
     const key=String(currentLevel);
     const old=best.records[key];
 
-    if(!old||stars>old.stars||(stars===old.stars&&moves<old.moves)) {
+    if (
+      !old ||
+      stars>old.stars ||
+      (stars===old.stars && moves<old.moves)
+    ) {
       best.records[key]={stars,moves};
     }
 
-    best.unlocked=Math.max(best.unlocked||1,Math.min(TOTAL_LEVELS,currentLevel+1));
+    best.unlocked=Math.max(
+      best.unlocked || 1,
+      Math.min(TOTAL_LEVELS,currentLevel+1)
+    );
+
     save();
     updateStars(stars);
 
-    statusBox.textContent=`⚡ Победа! ${stars} из 3 звёзд за ${moves} ходов.`;
-    $("nextLevelButton").classList.remove("hidden");
-    $("nextLevelButton").textContent=
-      currentLevel<TOTAL_LEVELS?"Следующий уровень →":"Карта завершена — сыграть снова";
+    statusBox.textContent=
+      `⚡ Победа! ${stars} из 3 звёзд за ${moves} ходов.`;
+
+    nextLevelButton.classList.remove("hidden");
+    nextLevelButton.textContent=
+      currentLevel<TOTAL_LEVELS
+        ? "Следующий уровень →"
+        : "Карта завершена — сыграть снова";
+
     updateRecord();
-  } else if(!won) {
+    updateHome();
+  } else if (!won) {
     updateStars(0);
-    statusBox.textContent="Путь не подключён. Поворачивай проводники!";
+    statusBox.textContent=
+      "Путь не подключён. Поворачивай проводники!";
   }
 }
 
+/* Статистика */
 function totalStars() {
-  return Object.values(best.records)
-    .reduce((sum,r)=>sum+Math.max(0,Math.min(3,r.stars||0)),0);
+  return Object.values(best.records).reduce(
+    (sum,record)=>
+      sum+Math.max(0,Math.min(3,record.stars||0)),
+    0
+  );
 }
 
 function completedCount() {
-  return Object.keys(best.records)
-    .filter(k=>Number(k)>=1&&Number(k)<=TOTAL_LEVELS).length;
+  return Object.keys(best.records).filter(key=>{
+    const n=Number(key);
+    return n>=1 && n<=TOTAL_LEVELS;
+  }).length;
 }
 
 function updateHome() {
   const done=completedCount();
   const percent=Math.round(done/TOTAL_LEVELS*100);
+
   $("homeStars").textContent=totalStars();
   $("homeProgress").textContent=`${done} / ${TOTAL_LEVELS}`;
   $("progressText").textContent=percent+"%";
   $("homeProgressBar").style.width=percent+"%";
-  $("continueButton").textContent=`▶ Продолжить · уровень ${Math.min(best.unlocked||1,TOTAL_LEVELS)}`;
+
+  $("continueButton").textContent=
+    `▶ Продолжить · уровень ${Math.min(
+      best.unlocked || 1,TOTAL_LEVELS
+    )}`;
 }
 
+/* Переключение экранов */
 function openScreen(name) {
   $("homeScreen").classList.toggle("hidden",name!=="home");
   $("mapScreen").classList.toggle("hidden",name!=="map");
   $("gameScreen").classList.toggle("hidden",name!=="game");
+
   window.scrollTo(0,0);
+}
+
+function showHome() {
+  updateHome();
+  openScreen("home");
 }
 
 function openMap() {
@@ -839,23 +949,43 @@ function openMap() {
   openScreen("map");
 }
 
+function startLevel(n) {
+  currentLevel=Math.max(1,Math.min(TOTAL_LEVELS,n));
+  generateLevel();
+  openScreen("game");
+}
+
+/* Карта уровней */
 function renderMap() {
   const grid=$("mapGrid");
   grid.innerHTML="";
 
-  for(let n=1;n<=TOTAL_LEVELS;n++) {
-    const unlocked=n<=(best.unlocked||1);
+  for (let n=1; n<=TOTAL_LEVELS; n++) {
+    const unlocked=n<=(best.unlocked || 1);
     const record=best.records[String(n)];
     const tile=document.createElement("button");
+
+    tile.type="button";
     tile.className="level-tile";
 
-    if(!unlocked) {
+    if (!unlocked) {
       tile.classList.add("locked");
-      tile.innerHTML='<span class="lock">🔒</span><span class="mini-stars">—</span>';
+
+      const lock=document.createElement("span");
+      lock.className="lock";
+      lock.textContent="🔒";
+
+      const stars=document.createElement("span");
+      stars.className="mini-stars";
+      stars.textContent="—";
+
+      tile.append(lock,stars);
       tile.disabled=true;
       tile.setAttribute("aria-label",`Уровень ${n} закрыт`);
     } else {
-      if(n===(best.unlocked||1)) tile.classList.add("current");
+      if (n===(best.unlocked || 1)) {
+        tile.classList.add("current");
+      }
 
       const number=document.createElement("span");
       number.className="number";
@@ -864,8 +994,8 @@ function renderMap() {
       const stars=document.createElement("span");
       stars.className="mini-stars";
       stars.textContent=record
-        ?"★".repeat(record.stars)+"☆".repeat(3-record.stars)
-        :"···";
+        ? "★".repeat(record.stars)+"☆".repeat(3-record.stars)
+        : "···";
 
       tile.append(number,stars);
       tile.addEventListener("click",()=>startLevel(n));
@@ -876,79 +1006,78 @@ function renderMap() {
   }
 
   const done=completedCount();
-  $("mapSummary").textContent=`Открыто ${best.unlocked} из ${TOTAL_LEVELS} уровней`;
-  $("mapProgressText").textContent=`${done} / ${TOTAL_LEVELS}`;
-  $("mapProgressBar").style.width=(done/TOTAL_LEVELS*100)+"%";
+
+  $("mapSummary").textContent=
+    `Открыто ${best.unlocked} из ${TOTAL_LEVELS} уровней`;
+
+  $("mapProgressText").textContent=
+    `${done} / ${TOTAL_LEVELS}`;
+
+  $("mapProgressBar").style.width=
+    (done/TOTAL_LEVELS*100)+"%";
 }
 
-function startLevel(n) {
-  currentLevel=Math.max(1,Math.min(TOTAL_LEVELS,n));
-  generateLevel();
-  openScreen("game");
+/* Подсказка */
+function showHint() {
+  if (won) {
+    statusBox.textContent="Уровень уже пройден!";
+    return;
+  }
+
+  const buttons=board.querySelectorAll(".cell");
+
+  const index=solution.findIndex((mask,i)=>
+    mask &&
+    cells[i] &&
+    !cells[i].fixed &&
+    cells[i].mask!==mask
+  );
+
+  if (index<0) {
+    statusBox.textContent=
+      "Попробуй найти правильный маршрут.";
+    return;
+  }
+
+  if (hintTimer) clearTimeout(hintTimer);
+
+  buttons[index].classList.add("hint");
+
+  statusBox.textContent=
+    "💡 Попробуй повернуть выделенный проводник.";
+
+  hintTimer=setTimeout(()=>{
+    buttons[index]?.classList.remove("hint");
+    hintTimer=null;
+  },1800);
 }
 
-function showHome() {
-  updateHome();
-  openScreen("home");
-}
-
+/* Обработчики кнопок */
 $("continueButton").addEventListener("click",()=>{
-  startLevel(Math.min(best.unlocked||1,TOTAL_LEVELS));
+  startLevel(Math.min(best.unlocked || 1,TOTAL_LEVELS));
 });
+
 $("openMapButton").addEventListener("click",openMap);
 $("mapBack").addEventListener("click",showHome);
 $("mapHome").addEventListener("click",showHome);
 $("gameBack").addEventListener("click",openMap);
 $("gameMapButton").addEventListener("click",openMap);
 $("resetButton").addEventListener("click",generateLevel);
+$("hintButton").addEventListener("click",showHint);
 
-$("nextLevelButton").addEventListener("click",()=>{
-  if(!won) return;
-  if(currentLevel<TOTAL_LEVELS) {
+nextLevelButton.addEventListener("click",()=>{
+  if (!won) return;
+
+  if (currentLevel<TOTAL_LEVELS) {
     startLevel(currentLevel+1);
   } else {
     openMap();
   }
 });
 
-$("hintButton").addEventListener("click",()=>{
-  if(won) {
-    statusBox.textContent="Уровень уже пройден!";
-    return;
-  }
-
-  const buttons=board.querySelectorAll(".cell");
-  const index=solution.findIndex((mask,i)=>
-    mask&&cells[i]&&!cells[i].fixed&&cells[i].mask!==mask
-  );
-
-  if(index<0) {
-    statusBox.textContent="Попробуй найти правильный маршрут.";
-    return;
-  }
-
-  buttons[index].classList.add("hint");
-  statusBox.textContent="💡 Попробуй повернуть выделенный проводник.";
-
-  if(hintTimer) clearTimeout(hintTimer);
-  hintTimer=setTimeout(()=>{
-    buttons[index]?.classList.remove("hint");
-  },1800);
-});
-
-// Начало игры.
+/* Инициализация приложения */
 updateHome();
 openScreen("home");
 </script>
-  
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .catch(error => console.error("Ошибка PWA:", error));
-  });
-}
-</script>
-
 </body>
 </html>
