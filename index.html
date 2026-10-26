@@ -8,6 +8,86 @@
 <meta name="description" content="КОНТУР — Энергия. Собирай электрические цепи, проходи головоломки и зарабатывай звёзды.">
 <title>КОНТУР — Энергия</title>
 
+/* КОНТУР 2.0 — анимации энергии и победы */
+
+.cell.energy-pulse {
+  animation: energyPulse 1.2s ease-in-out infinite;
+  animation-delay: var(--pulse-delay, 0ms);
+}
+
+@keyframes energyPulse {
+  0%, 100% {
+    box-shadow: inset 0 0 4px currentColor;
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: inset 0 0 16px currentColor;
+    filter: brightness(1.35);
+  }
+}
+
+.cell.hint-pulse {
+  animation: hintPulse 0.65s ease-in-out infinite alternate;
+}
+
+@keyframes hintPulse {
+  from {
+    outline: 2px solid #ffd166;
+    outline-offset: -2px;
+  }
+  to {
+    outline: 4px solid #fff0a8;
+    outline-offset: -4px;
+  }
+}
+
+.board.victory {
+  animation: victoryFlash 0.55s ease-out;
+}
+
+@keyframes victoryFlash {
+  0% { filter: brightness(1); }
+  45% { filter: brightness(1.7); }
+  100% { filter: brightness(1); }
+}
+
+.victory-particle {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: hsl(var(--hue), 90%, 70%);
+  animation: victoryParticle 850ms ease-out forwards;
+  animation-delay: var(--delay, 0ms);
+}
+
+@keyframes victoryParticle {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(
+      calc(-50% + var(--x)),
+      calc(-50% + var(--y))
+    ) scale(0.15);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell.energy-pulse,
+  .cell.hint-pulse,
+  .board.victory,
+  .victory-particle {
+    animation: none !important;
+  }
+}
+
 <style>
 :root {
   --bg:#101827;
@@ -184,6 +264,7 @@ button:disabled { cursor:default; }
   font-size:13px;
 }
 .board {
+  position: relative;
   display:grid;
   grid-template-columns:repeat(5,minmax(0,1fr));
   gap:6px;
