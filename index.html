@@ -581,7 +581,10 @@ function updateRecord() {
 
 function updatePath() {
   const path=findPath();
-
+const allCorrect = solution.every((mask, index) => {
+  if (mask === 0) return true;
+  return !!cells[index] && cells[index].mask === mask;
+});
   // Победа возможна, только если каждый проводник
   // задуманного решения находится в правильной ориентации.
   const allCorrect=solution.every((mask,index)=>{
@@ -599,7 +602,14 @@ function updatePath() {
   movesLabel.textContent="Ходы: "+moves;
   updateRecord();
 
-  if(solved&&!won) {
+  const path = findPath();
+
+const allCorrect = solution.every((mask, index) => {
+  if (mask === 0) return true;
+  return !!cells[index] && cells[index].mask === mask;
+});
+
+const solved = !!path && allCorrect;
     won=true;
     const stars=calculateStars();
     const key=String(currentLevel);
