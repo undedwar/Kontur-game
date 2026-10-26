@@ -3,1081 +3,328 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#101827">
-<meta name="description" content="КОНТУР — Энергия. Собирай электрические цепи, проходи головоломки и зарабатывай звёзды.">
-<title>КОНТУР — Энергия</title>
-
+<title>КОНТУР — Энергия 2.0</title>
 <style>
 :root {
-  --bg:#101827;
-  --panel:#1b293b;
-  --line:#30445a;
-  --text:#edf5ff;
-  --muted:#9eafc5;
-  --mint:#70f0c4;
-  --gold:#ffd166;
-  --pink:#ff8fbc;
+  --bg:#101827;--panel:#1b293b;--line:#30445a;
+  --text:#edf5ff;--muted:#9eafc5;--mint:#70f0c4;
+  --gold:#ffd166;--pink:#ff8fbc;
 }
-* { box-sizing:border-box; }
-body {
-  margin:0;
-  min-height:100vh;
-  padding:18px 14px calc(24px + env(safe-area-inset-bottom));
-  background:var(--bg);
-  color:var(--text);
-  font-family:system-ui,-apple-system,sans-serif;
-  display:flex;
-  justify-content:center;
-}
-main { width:100%; max-width:430px; }
-button { font:inherit; cursor:pointer; }
-button:focus-visible {
-  outline:2px solid var(--mint);
-  outline-offset:3px;
-}
-button:disabled { cursor:default; }
-
-.brand { text-align:center; padding:8px 0 15px; }
-.brand h1 {
-  color:var(--mint);
-  letter-spacing:5px;
-  font-size:31px;
-  margin:0;
-}
-.brand p { color:var(--muted); font-size:12px; margin:5px 0; }
-
-.panel {
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:15px;
-}
-.menu-hero {
-  padding:25px 16px;
-  margin:8px 0 14px;
-  text-align:center;
-  background:linear-gradient(145deg,#1d3545,#1b293b 70%);
-  border:1px solid #315264;
-  border-radius:20px;
-}
-.logo-art { margin:8px auto 18px; width:100px; height:100px; }
-.logo-art svg { width:100%; height:100%; }
-.hero-title { font-size:23px; font-weight:800; }
-.hero-copy {
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.6;
-  margin:8px 0 18px;
-}
-.action {
-  width:100%;
-  padding:14px;
-  margin-top:9px;
-  border:0;
-  border-radius:12px;
-  background:var(--mint);
-  color:#10251f;
-  font-weight:750;
-  font-size:15px;
-}
-.action:active { transform:scale(.99); }
-.secondary {
-  background:#26364b;
-  border:1px solid #3a4d65;
-  color:var(--text);
-}
-.stats-row {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:10px;
-  margin:12px 0;
-}
-.stat { text-align:center; padding:13px 8px; }
-.stat strong {
-  display:block;
-  font-size:23px;
-  color:var(--mint);
-}
-.stat span { color:var(--muted); font-size:11px; }
-
-.muted { color:var(--muted); font-size:13px; line-height:1.6; }
-.hidden { display:none !important; }
-
-.map-top {
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-bottom:14px;
-}
-.back {
-  flex-shrink:0;
-  width:42px;
-  height:42px;
-  border:1px solid var(--line);
-  background:var(--panel);
-  color:var(--text);
-  border-radius:12px;
-  font-size:20px;
-}
-.map-top h2 { margin:0; font-size:20px; }
-.map-top p { margin:3px 0 0; color:var(--muted); font-size:12px; }
-
-.progress-track {
-  height:7px;
-  background:#26364b;
-  border-radius:10px;
-  overflow:hidden;
-  margin:9px 0;
-}
-.progress-fill {
-  height:100%;
-  width:0;
-  background:var(--mint);
-  border-radius:10px;
-  transition:width .25s;
-}
-
-.map-grid {
-  display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:8px;
-  margin:15px 0;
-}
-.level-tile {
-  min-width:0;
-  aspect-ratio:1;
-  padding:3px 0;
-  border-radius:12px;
-  border:1px solid #34485f;
-  background:#1b293b;
-  color:var(--text);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:2px;
-}
-.level-tile.current {
-  border:2px solid var(--mint);
-  background:#193b3b;
-}
-.level-tile.locked { opacity:.42; }
-.level-tile .number { font-size:17px; font-weight:750; }
-.level-tile .mini-stars {
-  font-size:9px;
-  color:var(--gold);
-}
-.level-tile .lock { font-size:15px; }
-
-.message {
-  padding:13px;
-  margin:4px 0 12px;
-  min-height:48px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:14px;
-  font-size:13px;
-}
-.board {
-  display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:6px;
-}
-.cell {
-  position:relative;
-  min-width:0;
-  aspect-ratio:1;
-  padding:0;
-  overflow:hidden;
-  background:#1b293b;
-  border:1px solid #304157;
-  border-radius:10px;
-  touch-action:manipulation;
-  -webkit-tap-highlight-color:transparent;
-}
-.cell.empty { background:#131e2d; border-color:#202d3e; }
-.cell.block { background:#293144; border-color:#3b465a; }
-.cell.block:after { content:"✕"; color:#64738a; font-size:21px; }
-.cell.energized {
-  background:#1b3a3b;
-  border-color:var(--energy,var(--mint));
-}
-.cell.source { border-color:var(--mint); background:#193b3b; }
-.cell.target { border-color:var(--pink); background:#39283d; }
-.cell.hint { outline:3px solid var(--gold); outline-offset:-3px; }
-
-.wire {
-  position:absolute;
-  inset:0;
-  color:#6e83a2;
-  pointer-events:none;
-}
-.cell.energized .wire {
-  color:var(--energy,var(--mint));
-  filter:drop-shadow(0 0 4px var(--energy,var(--mint)));
-}
-.cell.source .wire { color:var(--mint); }
-.cell.target .wire { color:var(--pink); }
-.arm {
-  position:absolute;
-  left:50%;
-  top:calc(50% - 4px);
-  width:50%;
-  height:8px;
-  border-radius:8px;
-  background:currentColor;
-  transform-origin:left center;
-}
-.arm.diagonal { width:71%; }
-.core {
-  position:absolute;
-  width:13px;
-  height:13px;
-  left:calc(50% - 6.5px);
-  top:calc(50% - 6.5px);
-  border-radius:50%;
-  background:currentColor;
-}
-.marker {
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:clamp(16px,5vw,23px);
-  z-index:2;
-  pointer-events:none;
-}
-.game-stats {
-  display:flex;
-  justify-content:space-between;
-  gap:8px;
-  margin:13px 2px;
-  color:#c1cee0;
-  font-size:13px;
-}
-.stars {
-  text-align:center;
-  color:#52647a;
-  font-size:29px;
-  letter-spacing:5px;
-  margin:6px 0;
-}
-.stars .earned { color:var(--gold); }
-.game-actions {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:8px;
-}
-.game-actions .action { margin-top:8px; padding:12px 6px; font-size:13px; }
-.footer-note {
-  margin:15px 0 0;
-  text-align:center;
-  color:var(--muted);
-  font-size:11px;
-  line-height:1.6;
-}
+*{box-sizing:border-box}
+body{margin:0;padding:16px 12px 30px;background:var(--bg);color:var(--text);
+font-family:system-ui,-apple-system,sans-serif;display:flex;justify-content:center}
+main{width:100%;max-width:440px}
+header{text-align:center;padding:8px 0 15px}
+h1{color:var(--mint);letter-spacing:5px;margin:0;font-size:30px}
+header p,.muted{color:var(--muted);font-size:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:12px}
+.hero{text-align:center;padding:22px 16px;background:linear-gradient(145deg,#1d3545,#1b293b)}
+h2{font-size:20px;margin:0 0 8px}
+p{line-height:1.55}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+.action{width:100%;padding:13px;margin-top:8px;border:0;border-radius:12px;background:var(--mint);color:#10251f;font-weight:750}
+.secondary{background:#26364b;border:1px solid #3a4d65;color:var(--text)}
+.hidden{display:none!important}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+.stat{text-align:center;padding:13px 6px}
+.stat strong{display:block;color:var(--mint);font-size:22px}
+.stat span{color:var(--muted);font-size:11px}
+.top{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.back{width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:white;font-size:22px}
+.progress{height:7px;background:#26364b;border-radius:10px;overflow:hidden;margin:8px 0}
+.progress div{height:100%;width:0;background:var(--mint);transition:width .2s}
+.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:14px 0}
+.tile{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:white}
+.tile.current{border:2px solid var(--mint);background:#193b3b}
+.tile.locked{opacity:.35}
+.tile small{display:block;color:var(--gold);font-size:9px}
+.message{padding:12px;margin-bottom:12px;min-height:45px;display:flex;align-items:center;justify-content:center;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;font-size:13px}
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;position:relative}
+.cell{position:relative;aspect-ratio:1;min-width:0;padding:0;overflow:hidden;background:#1b293b;border:1px solid #304157;border-radius:10px;color:var(--mint);touch-action:manipulation}
+.cell.empty{background:#131e2d;border-color:#202d3e}
+.cell.block{background:#293144;color:#64738a}
+.cell.block:after{content:"✕";font-size:22px}
+.cell.source{background:#193b3b;border-color:var(--mint)}
+.cell.target{background:#39283d;border-color:var(--pink);color:var(--pink)}
+.cell.energized{background:#1b3a3b;box-shadow:inset 0 0 13px #70f0c455;animation:pulse 1.1s infinite alternate}
+.cell.hint{outline:3px solid var(--gold);outline-offset:-3px;animation:pulse .5s infinite alternate}
+@keyframes pulse{to{filter:brightness(1.5)}}
+.arm{position:absolute;left:50%;top:calc(50% - 4px);width:50%;height:8px;border-radius:8px;background:currentColor;transform-origin:left center;pointer-events:none}
+.arm.diagonal{width:71%}
+.core{position:absolute;width:12px;height:12px;left:calc(50% - 6px);top:calc(50% - 6px);border-radius:50%;background:currentColor;pointer-events:none}
+.marker{position:absolute;inset:0;display:grid;place-items:center;font-size:20px;pointer-events:none}
+.gameStats{display:flex;justify-content:space-between;gap:8px;margin:12px 2px;font-size:13px;color:#c1cee0}
+.stars{text-align:center;color:#52647a;font-size:27px;letter-spacing:5px;margin:8px}
+.earned{color:var(--gold)}
+.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.actions .action{font-size:13px;padding:12px 4px}
+.footer{text-align:center;color:var(--muted);font-size:11px;margin-top:14px}
+.listrow{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
-
 <body>
 <main>
-  <header class="brand">
-    <h1>КОНТУР ⚡</h1>
-    <p>СОБЕРИ ЦЕПЬ. ЗАПУСТИ ЭНЕРГИЮ.</p>
-  </header>
+<header><h1>КОНТУР ⚡</h1><p>СОБЕРИ ЦЕПЬ. ЗАПУСТИ ЭНЕРГИЮ.</p></header>
 
-  <!-- Главное меню -->
-  <section id="homeScreen">
-    <div class="menu-hero">
-      <div class="logo-art">
-        <svg viewBox="0 0 100 100" fill="none" aria-label="Логотип Контура">
-          <rect x="4" y="4" width="92" height="92" rx="22"
-                stroke="#315264" stroke-width="2"/>
-          <path d="M20 30H40V50H60V70H80"
-                stroke="#70f0c4" stroke-width="6"
-                stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="20" cy="30" r="7" fill="#70f0c4"/>
-          <circle cx="80" cy="70" r="7" fill="#ff8fbc"/>
-          <path d="M55 18L43 39H55L47 54L67 30H55L62 18Z"
-                fill="#ffd166"/>
-        </svg>
-      </div>
+<section id="home">
+ <div class="panel hero">
+  <h2>КОНТУР 2.0</h2>
+  <p class="muted">Подключай проводники, запускай энергию и открывай новые уровни.</p>
+  <button class="action" id="continue">▶ Играть</button>
+  <button class="action secondary" id="openMap">Выбор уровня</button>
+  <button class="action secondary" id="daily">⚡ Ежедневное испытание</button>
+  <button class="action secondary" id="achievements">🏆 Достижения</button>
+  <button class="action secondary" id="settings">🔊 Звук и вибрация: включены</button>
+ </div>
+ <div class="stats">
+  <div class="panel stat"><strong id="homeStars">0</strong><span>ЗВЁЗДЫ</span></div>
+  <div class="panel stat"><strong id="homeProgress">0 / 100</strong><span>ПРОЙДЕНО</span></div>
+ </div>
+ <div class="panel"><span class="muted">Прогресс кампании</span><strong id="percent" style="float:right">0%</strong><div class="progress"><div id="homeBar"></div></div></div>
+</section>
 
-      <div class="hero-title">Подключи энергию</div>
-      <p class="hero-copy">
-        Поворачивай проводники, ищи правильный маршрут
-        и собирай звёзды за каждый уровень.
-      </p>
-      <button class="action" id="continueButton">▶ Играть</button>
-      <button class="action secondary" id="openMapButton">Выбор уровня</button>
-    </div>
+<section id="map" class="hidden">
+ <div class="top"><button class="back" id="mapBack">‹</button><div><h2>Карта уровней</h2><span class="muted">Всего 100 головоломок</span></div></div>
+ <div class="panel"><div class="muted">Пройдено: <span id="mapCount">0</span> / 100</div><div class="progress"><div id="mapBar"></div></div></div>
+ <div class="grid" id="levelGrid"></div>
+ <button class="action secondary" id="mapHome">Главное меню</button>
+</section>
 
-    <div class="stats-row">
-      <div class="panel stat">
-        <strong id="homeStars">0</strong>
-        <span>СОБРАНО ЗВЁЗД</span>
-      </div>
-      <div class="panel stat">
-        <strong id="homeProgress">0 / 25</strong>
-        <span>ПРОЙДЕНО УРОВНЕЙ</span>
-      </div>
-    </div>
+<section id="game" class="hidden">
+ <div class="top"><button class="back" id="gameBack">‹</button><div><h2 id="gameTitle">Уровень 1</h2><span class="muted" id="subtitle">Соедини источник и цель</span></div></div>
+ <div class="message" id="status" aria-live="polite">Поворачивай проводники, чтобы соединить цепь.</div>
+ <div class="board" id="board"></div>
+ <div class="gameStats"><span id="movesLabel">Ходы: 0</span><span id="bestLabel">Рекорд: —</span></div>
+ <div class="stars" id="stars">☆☆☆</div>
+ <div class="actions">
+  <button class="action secondary" id="hint">💡 Подсказка</button>
+  <button class="action secondary" id="undo">↶ Отмена хода</button>
+  <button class="action secondary" id="reset">↻ Заново</button>
+  <button class="action secondary" id="sound">🔊 Звук</button>
+ </div>
+ <button class="action hidden" id="next">Следующий уровень →</button>
+ <button class="action secondary" id="gameMap">К карте уровней</button>
+ <p class="footer">Нажимай на проводники, чтобы повернуть их. Соедини источник ⚡ с целью ◎.</p>
+</section>
 
-    <div class="panel">
-      <div style="display:flex;justify-content:space-between;gap:8px">
-        <span class="muted">Общий прогресс</span>
-        <strong id="progressText">0%</strong>
-      </div>
-      <div class="progress-track">
-        <div class="progress-fill" id="homeProgressBar"></div>
-      </div>
-    </div>
-    <p class="footer-note">КОНТУР · Игровой прототип</p>
-  </section>
-
-  <!-- Карта уровней -->
-  <section id="mapScreen" class="hidden">
-    <div class="map-top">
-      <button class="back" id="mapBack" aria-label="Назад">‹</button>
-      <div>
-        <h2>Карта уровней</h2>
-        <p id="mapSummary">Открывай новые головоломки</p>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div style="display:flex;justify-content:space-between;gap:8px">
-        <span class="muted">Прогресс кампании</span>
-        <strong id="mapProgressText">0 / 25</strong>
-      </div>
-      <div class="progress-track">
-        <div class="progress-fill" id="mapProgressBar"></div>
-      </div>
-    </div>
-
-    <div class="map-grid" id="mapGrid"></div>
-    <p class="muted">
-      Бирюзовая рамка — следующий открытый уровень.
-      Золотые звёзды показывают результат.
-      Новые уровни открываются после победы.
-    </p>
-    <button class="action secondary" id="mapHome">Главное меню</button>
-  </section>
-
-  <!-- Игровой экран -->
-  <section id="gameScreen" class="hidden">
-    <div class="map-top">
-      <button class="back" id="gameBack" aria-label="Назад к карте">‹</button>
-      <div>
-        <h2 id="gameTitle">Уровень 1</h2>
-        <p id="gameSubtitle">Соедини источник и цель</p>
-      </div>
-    </div>
-
-    <div class="message" id="status" aria-live="polite">
-      Поворачивай провода, чтобы соединить цепь.
-    </div>
-
-    <div class="board" id="board"></div>
-
-    <div class="game-stats">
-      <span id="movesLabel">Ходы: 0</span>
-      <span id="bestLabel">Рекорд: —</span>
-    </div>
-
-    <div class="stars" id="stars">☆☆☆</div>
-
-    <div class="game-actions">
-      <button class="action secondary" id="hintButton">💡 Подсказка</button>
-      <button class="action secondary" id="resetButton">↻ Заново</button>
-    </div>
-
-    <button class="action hidden" id="nextLevelButton">
-      Следующий уровень →
-    </button>
-    <button class="action secondary" id="gameMapButton">
-      К карте уровней
-    </button>
-
-    <p class="footer-note">
-      Нажимай на проводник, чтобы повернуть его.
-      Соединяй контакты и доведи энергию до цели.
-    </p>
-  </section>
+<section id="achScreen" class="hidden">
+ <div class="top"><button class="back" id="achBack">‹</button><h2>🏆 Достижения</h2></div>
+ <div class="panel" id="achList"></div>
+</section>
 </main>
-
 <script>
 "use strict";
-
-/* Настройки игры */
-const TOTAL_LEVELS = 25;
-const SIZE = 5;
-const START = 10;
-const TARGET = 14;
-
-const DIRS = [
-  {dr:-1,dc:0,angle:-90},
-  {dr:-1,dc:1,angle:-45},
-  {dr:0,dc:1,angle:0},
-  {dr:1,dc:1,angle:45},
-  {dr:1,dc:0,angle:90},
-  {dr:1,dc:-1,angle:135},
-  {dr:0,dc:-1,angle:180},
-  {dr:-1,dc:-1,angle:225}
-];
-
-const BITS = DIRS.map((_,i)=>1<<i);
-const COLORS = ["#70f0c4","#65b8ff","#c4a0ff","#ffbd69","#ff8fbc"];
-const $ = id => document.getElementById(id);
-
-const board = $("board");
-const statusBox = $("status");
-const movesLabel = $("movesLabel");
-const starsBox = $("stars");
-const nextLevelButton = $("nextLevelButton");
-
-let currentLevel = 1;
-let moves = 0;
-let won = false;
-let cells = [];
-let solution = [];
-let optimalMoves = 0;
-let random = Math.random;
-let hintTimer = null;
-let best = loadSave();
-
-/* Сохранения */
-function loadSave() {
-  const fallback = {unlocked:1,records:{}};
-
-  try {
-    let raw = localStorage.getItem("contour_v5");
-
-    if (!raw) {
-      raw = localStorage.getItem("contour_v4")
-        || localStorage.getItem("contour_v3");
-    }
-
-    if (!raw) return fallback;
-
-    const data = JSON.parse(raw);
-    const records = {};
-
-    if (data.records && typeof data.records === "object") {
-      for (let i=1; i<=TOTAL_LEVELS; i++) {
-        const r = data.records[String(i)];
-
-        if (r && Number.isFinite(r.moves) &&
-            Number.isFinite(r.stars)) {
-          records[String(i)] = {
-            moves:Math.max(0,Math.floor(r.moves)),
-            stars:Math.max(1,Math.min(3,Math.floor(r.stars)))
-          };
-        }
-      }
-    }
-
-    return {
-      unlocked:Math.max(1,Math.min(
-        TOTAL_LEVELS,Math.floor(Number(data.unlocked)||1)
-      )),
-      records
-    };
-  } catch (error) {
-    return fallback;
+const SIZE=5,START=10,TARGET=14,TOTAL=100;
+const DIRS=[[-1,0,-90],[-1,1,-45],[0,1,0],[1,1,45],[1,0,90],[1,-1,135],[0,-1,180],[-1,-1,225]];
+const BITS=DIRS.map((_,i)=>1<<i);
+const $=id=>document.getElementById(id);
+const STORE="kontur_2_save";
+const today=()=>new Date().toLocaleDateString("en-CA");
+let saveData=loadSave(),level=1,moves=0,won=false,dailyMode=false,history=[],cells=[],solution=[],route=[];
+let soundOn=saveData.sound!==false;
+function loadSave(){
+ try{
+  const old=JSON.parse(localStorage.getItem(STORE)||"null");
+  if(old)return {...old,records:old.records||{},unlocked:old.unlocked||1,achievements:old.achievements||{}};
+  const previous=JSON.parse(localStorage.getItem("contour_v5")||"null");
+  return {unlocked:previous?.unlocked||1,records:previous?.records||{},achievements:{},dailyDate:"",dailyDone:false,sound:true};
+ }catch(e){return {unlocked:1,records:{},achievements:{},dailyDate:"",dailyDone:false,sound:true};}
+}
+function persist(){try{localStorage.setItem(STORE,JSON.stringify(saveData));}catch(e){console.warn("Сохранение недоступно",e);}}
+function rng(seed){let s=seed>>>0;return()=>{s=(s+0x6D2B79F5)|0;let t=s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
+function shuffle(a,r){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function neighbor(i,d){let r=Math.floor(i/5)+DIRS[d][0],c=i%5+DIRS[d][1];return r<0||r>=5||c<0||c>=5?-1:r*5+c;}
+function dirBetween(a,b){return DIRS.findIndex(d=>Math.floor(b/5)-Math.floor(a/5)===d[0]&&b%5-a%5===d[1]);}
+function rotate(mask){let out=0;for(let d=0;d<8;d++)if(mask&BITS[d])out|=BITS[(d+1)%8];return out;}
+function turnsToMatch(a,b){for(let n=0;n<8;n++){if(a===b)return n;a=rotate(a);}return 0;}
+function makeRoute(r){
+ const path=[START],seen=new Set(path);
+ function dfs(cur){
+  if(cur===TARGET)return path.length>=8;
+  if(path.length>=20)return false;
+  for(const next of shuffle(DIRS.map((_,d)=>neighbor(cur,d)).filter(i=>i>=0&&!seen.has(i)),r)){
+   if(next===TARGET&&path.length<7)continue;
+   seen.add(next);path.push(next);
+   if(dfs(next))return true;
+   path.pop();seen.delete(next);
+  }return false;
+ }
+ if(!dfs(START))throw Error("Не удалось создать маршрут");
+ return [...path];
+}
+function createLevel(n,seedOverride){
+ const r=rng(seedOverride??(n*7919+451));
+ route=makeRoute(r);solution=Array(25).fill(0);cells=Array(25).fill(null);
+ for(let i=0;i<route.length;i++){
+  const idx=route[i];let mask=0;
+  if(i>0)mask|=BITS[dirBetween(idx,route[i-1])];
+  if(i<route.length-1)mask|=BITS[dirBetween(idx,route[i+1])];
+  solution[idx]=mask;
+ }
+ for(const idx of route){
+  const fixed=idx===START||idx===TARGET,correct=solution[idx];let mask=correct;
+  if(!fixed){const turns=1+Math.floor(r()*7);for(let k=0;k<turns;k++)mask=rotate(mask);if(mask===correct)mask=rotate(mask);}
+  cells[idx]={kind:idx===START?"source":idx===TARGET?"target":"wire",mask,solutionMask:correct,fixed};
+ }
+ const free=shuffle(Array.from({length:25},(_,i)=>i).filter(i=>!route.includes(i)),r);
+ const count=Math.min(3+Math.floor(n/15),7);
+ for(let i=0;i<count;i++)cells[free[i]]={kind:"block",fixed:true};
+ if(!verifyLevel())throw Error("Проверка маршрута не пройдена");
+}
+function verifyLevel(){
+ if(route[0]!==START||route.at(-1)!==TARGET||new Set(route).size!==route.length)return false;
+ for(let i=1;i<route.length;i++){
+  const d=dirBetween(route[i],route[i-1]);
+  if(d<0||!(solution[route[i]]&BITS[d]))return false;
+ }
+ for(let i=0;i<route.length-1;i++){
+  const d=dirBetween(route[i],route[i+1]);
+  if(d<0||!(solution[route[i]]&BITS[d]))return false;
+ }
+ return true;
+}
+function openScreen(name){["home","map","game","achScreen"].forEach(id=>$(id).classList.toggle("hidden",id!==name));window.scrollTo(0,0);}
+function startLevel(n,isDaily=false){
+ dailyMode=isDaily;level=Math.max(1,Math.min(TOTAL,n));moves=0;won=false;history=[];
+ const seed=isDaily?hash(today()):undefined;
+ createLevel(level,seed);
+ $("gameTitle").textContent=isDaily?"Ежедневное испытание":"Уровень "+level;
+ $("subtitle").textContent=isDaily?"Особая головоломка дня":"Соедини источник и цель";
+ $("next").classList.add("hidden");
+ $("status").textContent="Поворачивай провода, чтобы соединить цепь.";
+ openScreen("game");renderBoard();updateGame();
+}
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function drawWire(button,mask){
+ let wire=button.querySelector(".wire");
+ if(!wire){wire=document.createElement("span");wire.className="wire";button.appendChild(wire);}
+ wire.innerHTML="";
+ for(let d=0;d<8;d++)if(mask&BITS[d]){
+  const arm=document.createElement("span");arm.className="arm"+(d%2?" diagonal":"");arm.style.transform=`rotate(${DIRS[d][2]}deg)`;wire.appendChild(arm);
+ }
+ const core=document.createElement("span");core.className="core";wire.appendChild(core);
+}
+function renderBoard(){
+ $("board").innerHTML="";
+ cells.forEach((cell,index)=>{
+  const b=document.createElement("button");b.type="button";b.className="cell";
+  if(!cell){b.classList.add("empty");b.disabled=true;b.setAttribute("aria-label","Пустая клетка");}
+  else if(cell.kind==="block"){b.classList.add("block");b.disabled=true;b.setAttribute("aria-label","Препятствие");}
+  else{
+   b.classList.add(cell.kind);drawWire(b,cell.mask);
+   if(cell.kind!=="wire"){const m=document.createElement("span");m.className="marker";m.textContent=cell.kind==="source"?"⚡":"◎";b.appendChild(m);}
+   b.setAttribute("aria-label",cell.kind==="wire"?"Повернуть проводник":cell.kind==="source"?"Источник энергии":"Цель");
+   b.addEventListener("click",()=>{
+    if(won||cell.fixed)return;
+    history.push({masks:cells.map(c=>c?c.mask:null),moves});
+    cell.mask=rotate(cell.mask);moves++;drawWire(b,cell.mask);feedback(480);updateGame();
+   });
   }
+  $("board").appendChild(b);
+ });
 }
-
-function save() {
-  try {
-    localStorage.setItem("contour_v5",JSON.stringify(best));
-  } catch (error) {
-    console.warn("Не удалось сохранить прогресс.",error);
+function findPath(){
+ const queue=[START],parent=new Map([[START,-1]]);
+ while(queue.length){
+  const cur=queue.shift();if(cur===TARGET){let p=[],at=TARGET;while(at!==-1){p.push(at);at=parent.get(at);}return p;}
+  const c=cells[cur];if(!c)continue;
+  for(let d=0;d<8;d++)if(c.mask&BITS[d]){
+   const next=neighbor(cur,d);if(next<0||parent.has(next))continue;
+   const other=cells[next];if(!other||other.kind==="block"||!(other.mask&BITS[(d+4)%8]))continue;
+   parent.set(next,cur);queue.push(next);
   }
+ }return null;
 }
-
-/* Случайные числа с фиксированным начальным значением */
-function seededRandom(seed) {
-  return function() {
-    seed |= 0;
-    seed = seed + 0x6D2B79F5 | 0;
-    let t = Math.imul(seed ^ seed >>> 15,1 | seed);
-    t = t + Math.imul(t ^ t >>> 7,61 | t) ^ t;
-    return ((t ^ t >>> 14) >>> 0)/4294967296;
-  };
+function updateGame(){
+ const path=findPath(),buttons=$("board").querySelectorAll(".cell");
+ buttons.forEach(b=>b.classList.remove("energized"));
+ if(path)path.forEach(i=>buttons[i].classList.add("energized"));
+ $("movesLabel").textContent="Ходы: "+moves;
+ const rec=saveData.records[String(level)];
+ $("bestLabel").textContent=rec?"Рекорд: "+rec.moves+" ходов":"Рекорд: —";
+ $("undo").disabled=history.length===0||won;
+ if(path&&!won)win();
+ else if(!won){$("stars").textContent="☆☆☆";$("status").textContent="Путь не подключён. Поворачивай проводники!";}
 }
-
-function shuffle(array) {
-  for (let i=array.length-1; i>0; i--) {
-    const j=Math.floor(random()*(i+1));
-    [array[i],array[j]]=[array[j],array[i]];
-  }
-  return array;
+function win(){
+ won=true;const stars=moves<=optimalMoves()?3:moves<=optimalMoves()+3?2:1;
+ $("stars").innerHTML='<span class="earned">★</span>'.repeat(stars)+'☆'.repeat(3-stars);
+ $("status").textContent=`⚡ Победа! ${stars} из 3 звёзд за ${moves} ходов.`;
+ $("next").classList.remove("hidden");feedback(760,true);
+ if(dailyMode){
+  saveData.dailyDate=today();saveData.dailyDone=true;
+ }else{
+  const key=String(level),old=saveData.records[key];
+  if(!old||stars>old.stars||(stars===old.stars&&moves<old.moves))saveData.records[key]={stars,moves};
+  saveData.unlocked=Math.max(saveData.unlocked||1,Math.min(TOTAL,level+1));
+ }
+ awardAchievements();persist();updateHome();
 }
-
-function rotateMask(mask) {
-  let result=0;
-  for (let i=0; i<8; i++) {
-    if (mask & BITS[i]) result |= BITS[(i+1)%8];
-  }
-  return result;
+function optimalMoves(){return route.reduce((sum,i)=>sum+(cells[i]&&!cells[i].fixed?turnsToMatch(cells[i].mask,solution[i]):0),0);}
+function feedback(freq=440,victory=false){
+ if(soundOn){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator(),gain=ctx.createGain();osc.frequency.value=freq;gain.gain.value=.045;osc.connect(gain);gain.connect(ctx.destination);osc.start();gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+(victory?.35:.09));osc.stop(ctx.currentTime+(victory?.36:.1));osc.onended=()=>ctx.close();}catch(e){}}
+ if(navigator.vibrate)navigator.vibrate(victory?[50,35,100]:15);
 }
-
-function neighbor(index,d) {
-  const r=Math.floor(index/SIZE);
-  const c=index%SIZE;
-  const nr=r+DIRS[d].dr;
-  const nc=c+DIRS[d].dc;
-
-  if (nr<0 || nr>=SIZE || nc<0 || nc>=SIZE) return -1;
-  return nr*SIZE+nc;
+function showHint(){
+ if(won)return;
+ const idx=route.find(i=>cells[i]&&!cells[i].fixed&&cells[i].mask!==solution[i]);
+ if(idx===undefined){$("status").textContent="Маршрут почти собран!";return;}
+ const b=$("board").children[idx];b.classList.add("hint");
+ $("status").textContent="💡 Выделен проводник, который нужно повернуть.";
+ setTimeout(()=>b.classList.remove("hint"),1800);
+ saveData.hints=(saveData.hints||0)+1;persist();
 }
-
-function directionBetween(a,b) {
-  const ar=Math.floor(a/SIZE), ac=a%SIZE;
-  const br=Math.floor(b/SIZE), bc=b%SIZE;
-
-  return DIRS.findIndex(d =>
-    d.dr===br-ar && d.dc===bc-ac
-  );
+function undo(){
+ if(!history.length||won)return;
+ const prev=history.pop();prev.masks.forEach((m,i)=>{if(cells[i]&&m!==null)cells[i].mask=m;});
+ moves=prev.moves;renderBoard();updateGame();feedback(320);
 }
-
-function opposite(d) {
-  return (d+4)%8;
+function resetLevel(){startLevel(level,dailyMode);}
+function updateHome(){
+ const records=Object.values(saveData.records),done=records.length,stars=records.reduce((s,r)=>s+(r.stars||0),0),pct=Math.round(done/TOTAL*100);
+ $("homeStars").textContent=stars;$("homeProgress").textContent=done+" / "+TOTAL;$("percent").textContent=pct+"%";$("homeBar").style.width=pct+"%";
+ $("continue").textContent="▶ Продолжить · уровень "+Math.min(saveData.unlocked||1,TOTAL);
+ $("settings").textContent=(soundOn?"🔊":"🔇")+" Звук и вибрация: "+(soundOn?"включены":"выключены");
 }
-
-function turnsToMatch(current,target) {
-  let mask=current;
-
-  for (let i=0; i<8; i++) {
-    if (mask===target) return i;
-    mask=rotateMask(mask);
-  }
-
-  return 0;
+function renderMap(){
+ const grid=$("levelGrid");grid.innerHTML="";
+ for(let n=1;n<=TOTAL;n++){
+  const b=document.createElement("button");b.className="tile";b.type="button";
+  const unlocked=n<=(saveData.unlocked||1);if(!unlocked)b.classList.add("locked");if(n===(saveData.unlocked||1))b.classList.add("current");
+  const rec=saveData.records[String(n)];b.innerHTML=unlocked?`${n}<small>${rec?"★".repeat(rec.stars)+"☆".repeat(3-rec.stars):"···"}</small>`:"🔒";
+  b.disabled=!unlocked;b.addEventListener("click",()=>startLevel(n));grid.appendChild(b);
+ }
+ const done=Object.keys(saveData.records).length;$("mapCount").textContent=done;$("mapBar").style.width=(done/TOTAL*100)+"%";
 }
-
-/* Генерация маршрута */
-function generateRoute() {
-  const path=[START];
-  const visited=new Set(path);
-
-  function dfs(current) {
-    if (current===TARGET) return path.length>=8;
-    if (path.length>=20) return false;
-
-    const candidates=shuffle(
-      DIRS.map((_,d)=>neighbor(current,d))
-        .filter(i=>i>=0 && !visited.has(i))
-    );
-
-    for (const next of candidates) {
-      if (next===TARGET && path.length<7) continue;
-
-      visited.add(next);
-      path.push(next);
-
-      if (dfs(next)) return true;
-
-      path.pop();
-      visited.delete(next);
-    }
-
-    return false;
-  }
-
-  if (dfs(START)) return [...path];
-
-  return [10,5,1,2,8,4,14];
+function awardAchievements(){
+ const done=Object.keys(saveData.records).length;
+ const stars=Object.values(saveData.records).reduce((s,r)=>s+(r.stars||0),0);
+ const defs={"first":"Пройдите первый уровень", "ten":"Пройдите 10 уровней","all":"Пройдите все 100 уровней","star":"Соберите 30 звёзд","daily":"Выполните ежедневное испытание"};
+ if(done>=1)saveData.achievements.first=true;if(done>=10)saveData.achievements.ten=true;if(done>=100)saveData.achievements.all=true;if(stars>=30)saveData.achievements.star=true;if(saveData.dailyDone)saveData.achievements.daily=true;
 }
-
-/* Создание уровня */
-function generateLevel() {
-  if (hintTimer) {
-    clearTimeout(hintTimer);
-    hintTimer=null;
-  }
-
-  random=seededRandom(currentLevel*7919+451);
-  cells=Array(SIZE*SIZE).fill(null);
-  solution=Array(SIZE*SIZE).fill(0);
-  moves=0;
-  won=false;
-  optimalMoves=0;
-
-  board.style.setProperty(
-    "--energy",COLORS[(currentLevel-1)%COLORS.length]
-  );
-
-  const route=generateRoute();
-
-  for (let i=0; i<route.length; i++) {
-    let mask=0;
-
-    if (i>0) {
-      mask |= BITS[directionBetween(route[i],route[i-1])];
-    }
-
-    if (i<route.length-1) {
-      mask |= BITS[directionBetween(route[i],route[i+1])];
-    }
-
-    solution[route[i]]=mask;
-  }
-
-  for (const index of route) {
-    const fixed=index===START || index===TARGET;
-    const correct=solution[index];
-    let mask=correct;
-
-    if (!fixed) {
-      const turns=1+Math.floor(random()*7);
-
-      for (let k=0; k<turns; k++) {
-        mask=rotateMask(mask);
-      }
-
-      while (mask===correct) {
-        mask=rotateMask(mask);
-      }
-
-      optimalMoves+=turnsToMatch(mask,correct);
-    }
-
-    cells[index]={
-      mask,
-      solutionMask:correct,
-      fixed,
-      kind:index===START ? "source" :
-           index===TARGET ? "target" : "wire"
-    };
-  }
-
-  const available=shuffle(
-    Array.from({length:SIZE*SIZE},(_,i)=>i)
-      .filter(i=>!route.includes(i))
-  );
-
-  const obstacleCount=Math.min(
-    3+Math.floor(currentLevel/3),7
-  );
-
-  for (let i=0; i<obstacleCount && i<available.length; i++) {
-    cells[available[i]]={kind:"block",fixed:true};
-  }
-
-  $("gameTitle").textContent="Уровень "+currentLevel;
-
-  const energyNames=["мятная","синяя","фиолетовая","янтарная","розовая"];
-  $("gameSubtitle").textContent=
-    "Энергия "+energyNames[(currentLevel-1)%5];
-
-  nextLevelButton.classList.add("hidden");
-  nextLevelButton.disabled=false;
-
-  statusBox.textContent="Поворачивай провода, чтобы соединить цепь.";
-
-  renderBoard();
-  updatePath();
+function showAchievements(){
+ const defs={"first":"Первый шаг","ten":"Опытный игрок — 10 уровней","all":"Мастер контура — 100 уровней","star":"Коллекционер — 30 звёзд","daily":"Ежедневное испытание"};
+ $("achList").innerHTML="";
+ Object.entries(defs).forEach(([k,label])=>{const row=document.createElement("div");row.className="listrow";row.textContent=label;const mark=document.createElement("strong");mark.textContent=saveData.achievements[k]?"✓":"🔒";mark.style.color=saveData.achievements[k]?"var(--mint)":"var(--muted)";row.appendChild(mark);$("achList").appendChild(row);});
+ openScreen("achScreen");
 }
-
-/* Отрисовка проводников */
-function drawWire(button,mask) {
-  let wire=button.querySelector(".wire");
-
-  if (!wire) {
-    wire=document.createElement("span");
-    wire.className="wire";
-    button.appendChild(wire);
-  }
-
-  wire.innerHTML="";
-
-  for (let d=0; d<8; d++) {
-    if (!(mask & BITS[d])) continue;
-
-    const arm=document.createElement("span");
-    arm.className="arm"+(d%2===1 ? " diagonal" : "");
-    arm.style.transform=`rotate(${DIRS[d].angle}deg)`;
-    wire.appendChild(arm);
-  }
-
-  const core=document.createElement("span");
-  core.className="core";
-  wire.appendChild(core);
-}
-
-function renderBoard() {
-  board.innerHTML="";
-
-  cells.forEach((cell,index)=>{
-    const button=document.createElement("button");
-    button.type="button";
-    button.className="cell";
-
-    if (!cell) {
-      button.classList.add("empty");
-      button.disabled=true;
-      button.setAttribute("aria-label","Пустая клетка");
-      board.appendChild(button);
-      return;
-    }
-
-    if (cell.kind==="block") {
-      button.classList.add("block");
-      button.disabled=true;
-      button.setAttribute("aria-label","Препятствие");
-      board.appendChild(button);
-      return;
-    }
-
-    if (cell.kind==="source") button.classList.add("source");
-    if (cell.kind==="target") button.classList.add("target");
-
-    button.setAttribute(
-      "aria-label",
-      cell.kind==="source" ? "Источник энергии" :
-      cell.kind==="target" ? "Цель" : "Повернуть проводник"
-    );
-
-    drawWire(button,cell.mask);
-
-    if (cell.kind!=="wire") {
-      const marker=document.createElement("span");
-      marker.className="marker";
-      marker.textContent=cell.kind==="source" ? "⚡" : "◎";
-      button.appendChild(marker);
-    }
-
-    button.addEventListener("click",()=>{
-      if (won || cell.fixed) return;
-
-      cell.mask=rotateMask(cell.mask);
-      moves++;
-
-      drawWire(button,cell.mask);
-      updatePath();
-    });
-
-    board.appendChild(button);
-  });
-}
-
-/* Поиск соединённой цепи */
-function findPath() {
-  const queue=[START];
-  const parent=new Map([[START,-1]]);
-
-  while (queue.length) {
-    const current=queue.shift();
-
-    if (current===TARGET) {
-      const path=[];
-      let at=TARGET;
-
-      while (at!==-1) {
-        path.push(at);
-        at=parent.get(at);
-      }
-
-      return path;
-    }
-
-    const cell=cells[current];
-    if (!cell) continue;
-
-    for (let d=0; d<8; d++) {
-      if (!(cell.mask & BITS[d])) continue;
-
-      const next=neighbor(current,d);
-
-      if (next<0 || parent.has(next)) continue;
-
-      const other=cells[next];
-
-      if (!other || other.kind==="block") continue;
-
-      if (!(other.mask & BITS[opposite(d)])) continue;
-
-      parent.set(next,current);
-      queue.push(next);
-    }
-  }
-
-  return null;
-}
-
-/* Звёзды и рекорды */
-function calculateStars() {
-  if (moves<=optimalMoves) return 3;
-  if (moves<=optimalMoves+3) return 2;
-  return 1;
-}
-
-function updateStars(count) {
-  starsBox.innerHTML="";
-
-  for (let i=1; i<=3; i++) {
-    const star=document.createElement("span");
-    star.textContent=i<=count ? "★" : "☆";
-
-    if (i<=count) star.className="earned";
-
-    starsBox.appendChild(star);
-  }
-}
-
-function updateRecord() {
-  const record=best.records[String(currentLevel)];
-
-  $("bestLabel").textContent=record
-    ? `Рекорд: ${record.moves} ходов`
-    : "Рекорд: —";
-}
-
-function updatePath() {
-  const path=findPath();
-  const buttons=board.querySelectorAll(".cell");
-
-  buttons.forEach(button=>
-    button.classList.remove("energized","hint")
-  );
-
-  if (path) {
-    path.forEach(index=>{
-      buttons[index].classList.add("energized");
-    });
-  }
-
-  movesLabel.textContent="Ходы: "+moves;
-  updateRecord();
-
-  if (path && !won) {
-    won=true;
-
-    const stars=calculateStars();
-    const key=String(currentLevel);
-    const old=best.records[key];
-
-    if (
-      !old ||
-      stars>old.stars ||
-      (stars===old.stars && moves<old.moves)
-    ) {
-      best.records[key]={stars,moves};
-    }
-
-    best.unlocked=Math.max(
-      best.unlocked || 1,
-      Math.min(TOTAL_LEVELS,currentLevel+1)
-    );
-
-    save();
-    updateStars(stars);
-
-    statusBox.textContent=
-      `⚡ Победа! ${stars} из 3 звёзд за ${moves} ходов.`;
-
-    nextLevelButton.classList.remove("hidden");
-    nextLevelButton.textContent=
-      currentLevel<TOTAL_LEVELS
-        ? "Следующий уровень →"
-        : "Карта завершена — сыграть снова";
-
-    updateRecord();
-    updateHome();
-  } else if (!won) {
-    updateStars(0);
-    statusBox.textContent=
-      "Путь не подключён. Поворачивай проводники!";
-  }
-}
-
-/* Статистика */
-function totalStars() {
-  return Object.values(best.records).reduce(
-    (sum,record)=>
-      sum+Math.max(0,Math.min(3,record.stars||0)),
-    0
-  );
-}
-
-function completedCount() {
-  return Object.keys(best.records).filter(key=>{
-    const n=Number(key);
-    return n>=1 && n<=TOTAL_LEVELS;
-  }).length;
-}
-
-function updateHome() {
-  const done=completedCount();
-  const percent=Math.round(done/TOTAL_LEVELS*100);
-
-  $("homeStars").textContent=totalStars();
-  $("homeProgress").textContent=`${done} / ${TOTAL_LEVELS}`;
-  $("progressText").textContent=percent+"%";
-  $("homeProgressBar").style.width=percent+"%";
-
-  $("continueButton").textContent=
-    `▶ Продолжить · уровень ${Math.min(
-      best.unlocked || 1,TOTAL_LEVELS
-    )}`;
-}
-
-/* Переключение экранов */
-function openScreen(name) {
-  $("homeScreen").classList.toggle("hidden",name!=="home");
-  $("mapScreen").classList.toggle("hidden",name!=="map");
-  $("gameScreen").classList.toggle("hidden",name!=="game");
-
-  window.scrollTo(0,0);
-}
-
-function showHome() {
-  updateHome();
-  openScreen("home");
-}
-
-function openMap() {
-  renderMap();
-  openScreen("map");
-}
-
-function startLevel(n) {
-  currentLevel=Math.max(1,Math.min(TOTAL_LEVELS,n));
-  generateLevel();
-  openScreen("game");
-}
-
-/* Карта уровней */
-function renderMap() {
-  const grid=$("mapGrid");
-  grid.innerHTML="";
-
-  for (let n=1; n<=TOTAL_LEVELS; n++) {
-    const unlocked=n<=(best.unlocked || 1);
-    const record=best.records[String(n)];
-    const tile=document.createElement("button");
-
-    tile.type="button";
-    tile.className="level-tile";
-
-    if (!unlocked) {
-      tile.classList.add("locked");
-
-      const lock=document.createElement("span");
-      lock.className="lock";
-      lock.textContent="🔒";
-
-      const stars=document.createElement("span");
-      stars.className="mini-stars";
-      stars.textContent="—";
-
-      tile.append(lock,stars);
-      tile.disabled=true;
-      tile.setAttribute("aria-label",`Уровень ${n} закрыт`);
-    } else {
-      if (n===(best.unlocked || 1)) {
-        tile.classList.add("current");
-      }
-
-      const number=document.createElement("span");
-      number.className="number";
-      number.textContent=n;
-
-      const stars=document.createElement("span");
-      stars.className="mini-stars";
-      stars.textContent=record
-        ? "★".repeat(record.stars)+"☆".repeat(3-record.stars)
-        : "···";
-
-      tile.append(number,stars);
-      tile.addEventListener("click",()=>startLevel(n));
-      tile.setAttribute("aria-label",`Открыть уровень ${n}`);
-    }
-
-    grid.appendChild(tile);
-  }
-
-  const done=completedCount();
-
-  $("mapSummary").textContent=
-    `Открыто ${best.unlocked} из ${TOTAL_LEVELS} уровней`;
-
-  $("mapProgressText").textContent=
-    `${done} / ${TOTAL_LEVELS}`;
-
-  $("mapProgressBar").style.width=
-    (done/TOTAL_LEVELS*100)+"%";
-}
-
-/* Подсказка */
-function showHint() {
-  if (won) {
-    statusBox.textContent="Уровень уже пройден!";
-    return;
-  }
-
-  const buttons=board.querySelectorAll(".cell");
-
-  const index=solution.findIndex((mask,i)=>
-    mask &&
-    cells[i] &&
-    !cells[i].fixed &&
-    cells[i].mask!==mask
-  );
-
-  if (index<0) {
-    statusBox.textContent=
-      "Попробуй найти правильный маршрут.";
-    return;
-  }
-
-  if (hintTimer) clearTimeout(hintTimer);
-
-  buttons[index].classList.add("hint");
-
-  statusBox.textContent=
-    "💡 Попробуй повернуть выделенный проводник.";
-
-  hintTimer=setTimeout(()=>{
-    buttons[index]?.classList.remove("hint");
-    hintTimer=null;
-  },1800);
-}
-
-/* Обработчики кнопок */
-$("continueButton").addEventListener("click",()=>{
-  startLevel(Math.min(best.unlocked || 1,TOTAL_LEVELS));
-});
-
-$("openMapButton").addEventListener("click",openMap);
-$("mapBack").addEventListener("click",showHome);
-$("mapHome").addEventListener("click",showHome);
-$("gameBack").addEventListener("click",openMap);
-$("gameMapButton").addEventListener("click",openMap);
-$("resetButton").addEventListener("click",generateLevel);
-$("hintButton").addEventListener("click",showHint);
-
-nextLevelButton.addEventListener("click",()=>{
-  if (!won) return;
-
-  if (currentLevel<TOTAL_LEVELS) {
-    startLevel(currentLevel+1);
-  } else {
-    openMap();
-  }
-});
-
-/* Инициализация приложения */
-updateHome();
-openScreen("home");
+$("continue").onclick=()=>startLevel(Math.min(saveData.unlocked||1,TOTAL));
+$("openMap").onclick=()=>{renderMap();openScreen("map");};
+$("daily").onclick=()=>{if(saveData.dailyDate===today()&&saveData.dailyDone){openScreen("home");alert("Сегодняшнее испытание уже пройдено. Возвращайся завтра!");}else startLevel(1,true);};
+$("achievements").onclick=showAchievements;
+$("settings").onclick=()=>{soundOn=!soundOn;saveData.sound=soundOn;persist();updateHome();};
+$("sound").onclick=()=>{soundOn=!soundOn;saveData.sound=soundOn;persist();updateHome();feedback();};
+$("hint").onclick=showHint;$("undo").onclick=undo;$("reset").onclick=resetLevel;
+$("next").onclick=()=>{if(!won)return;if(dailyMode){openScreen("home");return;}if(level<TOTAL)startLevel(level+1);else{renderMap();openScreen("map");}};
+$("mapBack").onclick=()=>openScreen("home");$("mapHome").onclick=()=>openScreen("home");
+$("gameBack").onclick=()=>{renderMap();openScreen("map");};$("gameMap").onclick=()=>{renderMap();openScreen("map");};
+$("achBack").onclick=()=>openScreen("home");
+updateHome();openScreen("home");
 </script>
 </body>
 </html>
+
