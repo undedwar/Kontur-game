@@ -678,7 +678,78 @@ function findPath() {
   }
 
   return null;
+
+function updatePath() {
+  const path = findPath();
+
+  // Проверяем все проводники, входящие
+  // в правильное решение уровня.
+  const allCorrect = solution.every((mask, index) => {
+    if (mask === 0) return true;
+
+    const cell = cells[index];
+    return !!cell && cell.mask === mask;
+  });
+
+  const solved = !!path && allCorrect;
+  const buttons = board.querySelectorAll(".cell");
+
+  buttons.forEach(button =>
+    button.classList.remove("energized", "hint")
+  );
+
+  if (path) {
+    path.forEach(index =>
+      buttons[index].classList.add("energized")
+    );
+  }
+
+  movesLabel.textContent = "Ходы: " + moves;
+  updateRecord();
+
+  if (solved && !won) {
+    won = true;
+
+    const stars = calculateStars();
+    const key = String(currentLevel);
+    const old = best.records[key];
+
+    if (
+      !old ||
+      stars > old.stars ||
+      (stars === old.stars && moves < old.moves)
+    ) {
+      best.records[key] = { stars, moves };
+    }
+
+    best.unlocked = Math.max(
+      best.unlocked || 1,
+      Math.min(TOTAL_LEVELS, currentLevel + 1)
+    );
+
+    save();
+    updateStars(stars);
+
+    statusBox.textContent =
+      `⚡ Победа! ${stars} из 3 звёзд за ${moves} ходов.`;
+
+    $("nextLevelButton").classList.remove("hidden");
+    $("nextLevelButton").textContent =
+      currentLevel < TOTAL_LEVELS
+        ? "Следующий уровень →"
+        : "Карта завершена — сыграть снова";
+
+    updateRecord();
+
+  } else if (!won) {
+    updateStars(0);
+
+    statusBox.textContent = path
+      ? "Маршрут найден, но не все проводники правильно ориентированы."
+      : "Путь не подключён. Поворачивай проводники!";
+  }
 }
+
 
 function calculateStars() {
   if(moves<=optimalMoves) return 3;
