@@ -1,1 +1,1041 @@
 
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101827">
+<meta name="description" content="КОНТУР — Энергия 2.0. Собирай электрические цепи, проходи уровни и открывай достижения.">
+<title>КОНТУР — Энергия 2.0</title>
+
+<style>
+:root {
+  --bg:#101827;
+  --panel:#1b293b;
+  --line:#30445a;
+  --text:#edf5ff;
+  --muted:#9eafc5;
+  --mint:#70f0c4;
+  --gold:#ffd166;
+  --pink:#ff8fbc;
+  --energy:#70f0c4;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  min-height:100vh;
+  padding:16px 12px calc(24px + env(safe-area-inset-bottom));
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,sans-serif;
+  display:flex;
+  justify-content:center;
+}
+main { width:100%; max-width:460px; }
+button { font:inherit; cursor:pointer; }
+button:focus-visible { outline:2px solid var(--mint); outline-offset:3px; }
+button:disabled { cursor:default; }
+.brand { text-align:center; padding:8px 0 14px; }
+.brand h1 { color:var(--mint); letter-spacing:5px; font-size:30px; margin:0; }
+.brand p { color:var(--muted); font-size:11px; margin:5px 0; }
+.panel {
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px;
+}
+.hero {
+  padding:24px 16px;
+  margin:8px 0 14px;
+  text-align:center;
+  background:linear-gradient(145deg,#1d3545,#1b293b 70%);
+  border:1px solid #315264;
+  border-radius:20px;
+}
+.hero-icon { font-size:54px; margin:4px 0 12px; }
+.hero-title { font-size:23px; font-weight:800; }
+.hero-copy,.muted {
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
+.action {
+  width:100%;
+  padding:13px;
+  margin-top:9px;
+  border:0;
+  border-radius:12px;
+  background:var(--mint);
+  color:#10251f;
+  font-weight:750;
+  font-size:14px;
+}
+.secondary { background:#26364b; border:1px solid #3a4d65; color:var(--text); }
+.danger { background:#482d40; border:1px solid #70405c; color:#ffd9e8; }
+.stats-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:12px 0; }
+.stat { text-align:center; padding:12px 5px; }
+.stat strong { display:block; font-size:22px; color:var(--mint); }
+.stat span { color:var(--muted); font-size:10px; }
+.hidden { display:none !important; }
+.map-top { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.back {
+  flex-shrink:0; width:42px; height:42px; border:1px solid var(--line);
+  background:var(--panel); color:var(--text); border-radius:12px; font-size:22px;
+}
+.map-top h2 { margin:0; font-size:20px; }
+.map-top p { margin:3px 0 0; color:var(--muted); font-size:12px; }
+.progress-track { height:7px; background:#26364b; border-radius:10px; overflow:hidden; margin:9px 0; }
+.progress-fill { height:100%; width:0; background:var(--mint); border-radius:10px; transition:width .25s; }
+.map-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:7px; margin:15px 0; }
+.level-tile {
+  min-width:0; aspect-ratio:1; padding:3px 0; border-radius:11px;
+  border:1px solid #34485f; background:#1b293b; color:var(--text);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+}
+.level-tile.current { border:2px solid var(--mint); background:#193b3b; }
+.level-tile.locked { opacity:.38; }
+.level-tile .number { font-size:16px; font-weight:750; }
+.level-tile .mini-stars { font-size:9px; color:var(--gold); }
+.message {
+  padding:12px; margin:4px 0 12px; min-height:46px;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  background:var(--panel); border:1px solid var(--line); border-radius:14px; font-size:13px;
+}
+.board {
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:6px;
+}
+.cell {
+  position:relative; min-width:0; aspect-ratio:1; padding:0; overflow:hidden;
+  background:#1b293b; border:1px solid #304157; border-radius:10px;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+}
+.cell.empty { background:#131e2d; border-color:#202d3e; }
+.cell.block { background:#293144; border-color:#3b465a; }
+.cell.block:after { content:"✕"; color:#64738a; font-size:21px; }
+.cell.energized { background:#1b3a3b; border-color:var(--energy); }
+.cell.source { border-color:var(--mint); background:#193b3b; }
+.cell.target { border-color:var(--pink); background:#39283d; }
+.cell.hint { outline:3px solid var(--gold); outline-offset:-3px; }
+.cell.energy-pulse { animation:energyPulse 1.2s ease-in-out infinite; }
+.wire { position:absolute; inset:0; color:#6e83a2; pointer-events:none; }
+.cell.energized .wire { color:var(--energy); filter:drop-shadow(0 0 4px var(--energy)); }
+.cell.source .wire { color:var(--mint); }
+.cell.target .wire { color:var(--pink); }
+.arm {
+  position:absolute; left:50%; top:calc(50% - 4px); width:50%; height:8px;
+  border-radius:8px; background:currentColor; transform-origin:left center;
+}
+.arm.diagonal { width:71%; }
+.core {
+  position:absolute; width:13px; height:13px; left:calc(50% - 6.5px);
+  top:calc(50% - 6.5px); border-radius:50%; background:currentColor;
+}
+.marker {
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:clamp(16px,5vw,23px); z-index:2; pointer-events:none;
+}
+.game-stats { display:flex; justify-content:space-between; gap:8px; margin:12px 2px; color:#c1cee0; font-size:12px; }
+.stars { text-align:center; color:#52647a; font-size:28px; letter-spacing:5px; margin:6px 0; }
+.stars .earned { color:var(--gold); }
+.game-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.game-actions .action { margin-top:8px; padding:11px 4px; font-size:12px; }
+.section-title { font-size:17px; margin:4px 0 12px; }
+.item-row {
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:12px 0; border-bottom:1px solid var(--line); font-size:13px;
+}
+.item-row:last-child { border-bottom:0; }
+.item-row small { display:block; color:var(--muted); margin-top:4px; line-height:1.4; }
+.badge-icon { font-size:24px; min-width:32px; text-align:center; }
+.footer-note { margin:15px 0 0; text-align:center; color:var(--muted); font-size:11px; line-height:1.6; }
+.board.victory { animation:victoryFlash .55s ease-out; }
+@keyframes energyPulse {
+  0%,100% { box-shadow:inset 0 0 4px var(--energy); filter:brightness(1); }
+  50% { box-shadow:inset 0 0 16px var(--energy); filter:brightness(1.35); }
+}
+@keyframes victoryFlash {
+  0%,100% { filter:brightness(1); }
+  45% { filter:brightness(1.7); }
+}
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; }
+}
+</style>
+</head>
+
+<body>
+<main>
+  <header class="brand">
+    <h1>КОНТУР ⚡</h1>
+    <p>СОБЕРИ ЦЕПЬ. ЗАПУСТИ ЭНЕРГИЮ.</p>
+  </header>
+
+  <section id="homeScreen">
+    <div class="hero">
+      <div class="hero-icon">⚡</div>
+      <div class="hero-title">Подключи энергию</div>
+      <p class="hero-copy">Поворачивай проводники, соединяй источник и цель, собирай звёзды и открывай достижения.</p>
+      <button class="action" id="continueButton">▶ Играть</button>
+      <button class="action secondary" id="openMapButton">Выбор уровня</button>
+      <button class="action secondary" id="dailyButton">📅 Ежедневное испытание</button>
+      <button class="action secondary" id="achievementsButton">🏆 Достижения</button>
+    </div>
+    <div class="stats-row">
+      <div class="panel stat"><strong id="homeStars">0</strong><span>СОБРАНО ЗВЁЗД</span></div>
+      <div class="panel stat"><strong id="homeProgress">0 / 100</strong><span>ПРОЙДЕНО УРОВНЕЙ</span></div>
+    </div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;gap:8px">
+        <span class="muted">Общий прогресс</span><strong id="progressText">0%</strong>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="homeProgressBar"></div></div>
+      <p class="muted" id="dailySummary">Ежедневное испытание ждёт тебя.</p>
+    </div>
+    <p class="footer-note">КОНТУР 2.0 · Прогресс сохраняется на этом устройстве.</p>
+  </section>
+
+  <section id="mapScreen" class="hidden">
+    <div class="map-top">
+      <button class="back" id="mapBack" aria-label="Назад">‹</button>
+      <div><h2>Карта уровней</h2><p id="mapSummary">100 головоломок</p></div>
+    </div>
+    <div class="panel">
+      <span class="muted">Прогресс кампании</span>
+      <strong id="mapProgressText">0 / 100</strong>
+      <div class="progress-track"><div class="progress-fill" id="mapProgressBar"></div></div>
+    </div>
+    <div class="map-grid" id="mapGrid"></div>
+    <p class="muted">Новые уровни открываются после победы. Звёзды отражают лучший результат.</p>
+    <button class="action secondary" id="mapHome">Главное меню</button>
+  </section>
+
+  <section id="gameScreen" class="hidden">
+    <div class="map-top">
+      <button class="back" id="gameBack" aria-label="Назад к карте">‹</button>
+      <div><h2 id="gameTitle">Уровень 1</h2><p id="gameSubtitle">Соедини источник и цель</p></div>
+    </div>
+    <div class="message" id="status" aria-live="polite">Поворачивай провода, чтобы соединить цепь.</div>
+    <div class="board" id="board"></div>
+    <div class="game-stats"><span id="movesLabel">Ходы: 0</span><span id="bestLabel">Рекорд: —</span></div>
+    <div class="stars" id="stars">☆☆☆</div>
+    <div class="game-actions">
+      <button class="action secondary" id="hintButton">💡 Подсказка</button>
+      <button class="action secondary" id="undoButton">↶ Отменить</button>
+      <button class="action secondary" id="resetButton">↻ Заново</button>
+      <button class="action secondary" id="soundButton">🔊 Звук: вкл.</button>
+    </div>
+    <button class="action hidden" id="nextLevelButton">Следующий уровень →</button>
+    <button class="action secondary" id="gameMapButton">К карте уровней</button>
+    <p class="footer-note">Нажимай на проводник, чтобы повернуть его. Зелёные клетки показывают соединённую цепь.</p>
+  </section>
+
+  <section id="dailyScreen" class="hidden">
+    <div class="map-top">
+      <button class="back" id="dailyBack" aria-label="Назад">‹</button>
+      <div><h2>Ежедневное испытание</h2><p id="dailyDate"></p></div>
+    </div>
+    <div class="panel">
+      <h3>Испытание дня ⚡</h3>
+      <p class="muted">Пройди особый уровень дня. Результат и дата сохраняются на устройстве. Семя испытания меняется каждый календарный день.</p>
+      <div id="dailyState" class="message">Готов к испытанию?</div>
+      <button class="action" id="startDailyButton">Начать испытание</button>
+    </div>
+    <button class="action secondary" id="dailyHome">Главное меню</button>
+  </section>
+
+  <section id="achievementsScreen" class="hidden">
+    <div class="map-top">
+      <button class="back" id="achievementsBack" aria-label="Назад">‹</button>
+      <div><h2>Достижения</h2><p id="achievementSummary">0 открыто</p></div>
+    </div>
+    <div class="panel" id="achievementList"></div>
+    <button class="action secondary" id="achievementsHome">Главное меню</button>
+  </section>
+</main>
+
+<script>
+"use strict";
+
+const TOTAL_LEVELS = 100;
+const SIZE = 5;
+const START = 10;
+const TARGET = 14;
+const SAVE_KEY = "kontur_v2_save";
+
+const DIRS = [
+  {dr:-1,dc:0,angle:-90},
+  {dr:-1,dc:1,angle:-45},
+  {dr:0,dc:1,angle:0},
+  {dr:1,dc:1,angle:45},
+  {dr:1,dc:0,angle:90},
+  {dr:1,dc:-1,angle:135},
+  {dr:0,dc:-1,angle:180},
+  {dr:-1,dc:-1,angle:225}
+];
+const BITS = DIRS.map((_,i)=>1<<i);
+const COLORS = ["#70f0c4","#65b8ff","#c4a0ff","#ffbd69","#ff8fbc"];
+const $ = id => document.getElementById(id);
+
+const ACHIEVEMENTS = [
+  {id:"first",icon:"⚡",name:"Первый импульс",desc:"Пройди первый уровень.",test:s=>s.completed>=1},
+  {id:"five",icon:"🔌",name:"Первые подключения",desc:"Пройди 5 уровней.",test:s=>s.completed>=5},
+  {id:"ten",icon:"🧩",name:"Инженер цепей",desc:"Пройди 10 уровней.",test:s=>s.completed>=10},
+  {id:"twentyfive",icon:"🏅",name:"Мастер схем",desc:"Пройди 25 уровней.",test:s=>s.completed>=25},
+  {id:"fifty",icon:"🌟",name:"Повелитель энергии",desc:"Пройди 50 уровней.",test:s=>s.completed>=50},
+  {id:"hundred",icon:"👑",name:"Легенда Контура",desc:"Пройди все 100 уровней.",test:s=>s.completed>=100},
+  {id:"stars",icon:"✨",name:"Коллекционер",desc:"Собери 30 звёзд.",test:s=>s.stars>=30},
+  {id:"daily",icon:"📅",name:"Ежедневный импульс",desc:"Пройди ежедневное испытание.",test:s=>s.daily>=1},
+  {id:"perfect",icon:"🎯",name:"Точность",desc:"Получи 3 звезды за уровень.",test:s=>s.perfect>=1}
+];
+
+function freshSave() {
+  return {
+    unlocked:1,
+    records:{},
+    daily:{},
+    achievements:{},
+    settings:{sound:true,vibration:true}
+  };
+}
+
+function loadSave() {
+  const fallback=freshSave();
+  try {
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(!raw) {
+      const legacy=localStorage.getItem("contour_v5") ||
+        localStorage.getItem("contour_v4") ||
+        localStorage.getItem("contour_v3");
+      if(!legacy) return fallback;
+      const old=JSON.parse(legacy);
+      fallback.unlocked=Math.max(1,Math.min(TOTAL_LEVELS,Number(old.unlocked)||1));
+      if(old.records && typeof old.records==="object") {
+        for(let i=1;i<=TOTAL_LEVELS;i++) {
+          const r=old.records[String(i)];
+          if(r && Number.isFinite(r.moves) && Number.isFinite(r.stars)) {
+            fallback.records[String(i)]={
+              moves:Math.max(0,Math.floor(r.moves)),
+              stars:Math.max(1,Math.min(3,Math.floor(r.stars)))
+            };
+          }
+        }
+      }
+      return fallback;
+    }
+    const data=JSON.parse(raw);
+    const out=freshSave();
+    out.unlocked=Math.max(1,Math.min(TOTAL_LEVELS,Math.floor(Number(data.unlocked)||1)));
+    if(data.records && typeof data.records==="object") {
+      for(let i=1;i<=TOTAL_LEVELS;i++) {
+        const r=data.records[String(i)];
+        if(r && Number.isFinite(r.moves) && Number.isFinite(r.stars)) {
+          out.records[String(i)]={
+            moves:Math.max(0,Math.floor(r.moves)),
+            stars:Math.max(1,Math.min(3,Math.floor(r.stars)))
+          };
+        }
+      }
+    }
+    if(data.daily && typeof data.daily==="object") out.daily=data.daily;
+    if(data.achievements && typeof data.achievements==="object") out.achievements=data.achievements;
+    if(data.settings && typeof data.settings==="object") {
+      out.settings.sound=data.settings.sound!==false;
+      out.settings.vibration=data.settings.vibration!==false;
+    }
+    return out;
+  } catch(e) {
+    console.warn("Ошибка чтения сохранения.",e);
+    return fallback;
+  }
+}
+
+let saveData=loadSave();
+let currentLevel=1;
+let isDaily=false;
+let dailyDate="";
+let moves=0;
+let won=false;
+let cells=[];
+let solution=[];
+let route=[];
+let optimalMoves=0;
+let undoStack=[];
+let hintIndex=-1;
+let soundContext=null;
+let activePath=[];
+let activeSeed=1;
+
+const board=$("board");
+const statusBox=$("status");
+const starsBox=$("stars");
+const nextLevelButton=$("nextLevelButton");
+
+function persist() {
+  try {
+    localStorage.setItem(SAVE_KEY,JSON.stringify(saveData));
+  } catch(e) {
+    console.warn("Не удалось сохранить прогресс.",e);
+    statusBox.textContent="Не удалось сохранить данные. Проверь свободное место в браузере.";
+  }
+}
+
+function seededRandom(seed) {
+  let state=seed>>>0;
+  return function() {
+    state=(state+0x6D2B79F5)|0;
+    let t=state;
+    t=Math.imul(t^(t>>>15),t|1);
+    t^=t+Math.imul(t^(t>>>7),t|61);
+    return ((t^(t>>>14))>>>0)/4294967296;
+  };
+}
+
+function shuffle(array,random) {
+  const result=[...array];
+  for(let i=result.length-1;i>0;i--) {
+    const j=Math.floor(random()*(i+1));
+    [result[i],result[j]]=[result[j],result[i]];
+  }
+  return result;
+}
+
+function rotateMask(mask) {
+  let result=0;
+  for(let d=0;d<8;d++) if(mask&BITS[d]) result|=BITS[(d+1)%8];
+  return result;
+}
+
+function neighbor(index,d) {
+  const r=Math.floor(index/SIZE),c=index%SIZE;
+  const nr=r+DIRS[d].dr,nc=c+DIRS[d].dc;
+  if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) return -1;
+  return nr*SIZE+nc;
+}
+
+function directionBetween(a,b) {
+  const ar=Math.floor(a/SIZE),ac=a%SIZE;
+  const br=Math.floor(b/SIZE),bc=b%SIZE;
+  return DIRS.findIndex(d=>d.dr===br-ar&&d.dc===bc-ac);
+}
+
+function turnsToMatch(current,target) {
+  let mask=current;
+  for(let i=0;i<8;i++) {
+    if(mask===target) return i;
+    mask=rotateMask(mask);
+  }
+  return Infinity;
+}
+
+function generateRoute(random) {
+  const path=[START];
+  const visited=new Set(path);
+
+  function dfs(current) {
+    if(current===TARGET) return path.length>=8;
+    if(path.length>=20) return false;
+    const candidates=shuffle(
+      DIRS.map((_,d)=>neighbor(current,d)).filter(i=>i>=0&&!visited.has(i)),
+      random
+    );
+    for(const next of candidates) {
+      if(next===TARGET&&path.length<7) continue;
+      visited.add(next);
+      path.push(next);
+      if(dfs(next)) return true;
+      path.pop();
+      visited.delete(next);
+    }
+    return false;
+  }
+
+  if(!dfs(START)) throw new Error("Не удалось создать маршрут с решением.");
+  return [...path];
+}
+
+function verifyLevel(level) {
+  if(!level || !Array.isArray(level.route) || !Array.isArray(level.solution)) return false;
+  if(level.route[0]!==START || level.route[level.route.length-1]!==TARGET) return false;
+  const seen=new Set();
+
+  for(let i=0;i<level.route.length;i++) {
+    const index=level.route[i];
+    if(!Number.isInteger(index)||index<0||index>=SIZE*SIZE||seen.has(index)) return false;
+    seen.add(index);
+    const mask=level.solution[index];
+    if(!mask) return false;
+    if(i>0) {
+      const d=directionBetween(index,level.route[i-1]);
+      if(d<0||!(mask&BITS[d])) return false;
+    }
+    if(i<level.route.length-1) {
+      const d=directionBetween(index,level.route[i+1]);
+      if(d<0||!(mask&BITS[d])) return false;
+    }
+  }
+
+  for(let i=0;i<level.route.length;i++) {
+    const index=level.route[i];
+    const cell=level.cells[index];
+    if(!cell || cell.kind==="block") return false;
+    if(cell.solutionMask!==level.solution[index]) return false;
+  }
+  return true;
+}
+
+function createLevel(seed) {
+  const random=seededRandom(seed);
+  const path=generateRoute(random);
+  const masks=Array(SIZE*SIZE).fill(0);
+  const levelCells=Array(SIZE*SIZE).fill(null);
+
+  for(let i=0;i<path.length;i++) {
+    const index=path[i];
+    let mask=0;
+    if(i>0) mask|=BITS[directionBetween(index,path[i-1])];
+    if(i<path.length-1) mask|=BITS[directionBetween(index,path[i+1])];
+    masks[index]=mask;
+  }
+
+  let optimal=0;
+  for(const index of path) {
+    const fixed=index===START||index===TARGET;
+    const correct=masks[index];
+    let mask=correct;
+
+    if(!fixed) {
+      const turns=1+Math.floor(random()*7);
+      for(let j=0;j<turns;j++) mask=rotateMask(mask);
+      if(mask===correct) mask=rotateMask(mask);
+      optimal+=turnsToMatch(mask,correct);
+    }
+
+    levelCells[index]={
+      kind:index===START?"source":index===TARGET?"target":"wire",
+      mask,solutionMask:correct,fixed
+    };
+  }
+
+  const available=shuffle(
+    Array.from({length:SIZE*SIZE},(_,i)=>i).filter(i=>!path.includes(i)),
+    random
+  );
+  const obstacleCount=Math.min(3+Math.floor(seed%9),7);
+
+  for(let i=0;i<obstacleCount&&i<available.length;i++) {
+    levelCells[available[i]]={kind:"block",fixed:true};
+  }
+
+  const result={route:path,solution:masks,cells:levelCells,optimalMoves:optimal};
+  if(!verifyLevel(result)) throw new Error("Проверка решения уровня не пройдена.");
+  return result;
+}
+
+function getDateKey(date=new Date()) {
+  return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0")+"-"+String(date.getDate()).padStart(2,"0");
+}
+
+function hashString(text) {
+  let h=2166136261;
+  for(let i=0;i<text.length;i++) {
+    h^=text.charCodeAt(i);
+    h=Math.imul(h,16777619);
+  }
+  return h>>>0;
+}
+
+function currentSeed() {
+  return isDaily ? hashString("KONTUR-DAILY-"+dailyDate) : currentLevel*7919+451;
+}
+
+function startLevel(number, daily=false) {
+  currentLevel=Math.max(1,Math.min(TOTAL_LEVELS,Math.floor(number)||1));
+  isDaily=daily;
+  dailyDate=daily?getDateKey():"";
+  activeSeed=currentSeed();
+
+  let level;
+  try {
+    level=createLevel(activeSeed);
+  } catch(error) {
+    console.error(error);
+    $("status").textContent="Не удалось создать уровень. Попробуй перезапустить игру.";
+    return;
+  }
+
+  route=level.route;
+  solution=level.solution;
+  cells=level.cells;
+  optimalMoves=level.optimalMoves;
+  moves=0;
+  won=false;
+  undoStack=[];
+  hintIndex=-1;
+  activePath=[];
+  nextLevelButton.classList.add("hidden");
+
+  board.style.setProperty("--energy",COLORS[(currentLevel-1)%COLORS.length]);
+  $("gameTitle").textContent=isDaily?"Ежедневное испытание":"Уровень "+currentLevel;
+  $("gameSubtitle").textContent=isDaily?dailyDate:"Проверь соединение источника и цели";
+  $("status").textContent="Поворачивай провода, чтобы соединить цепь.";
+
+  renderBoard();
+  updatePath();
+  updateStars(0);
+  updateRecord();
+  updateUndoButton();
+  openScreen("game");
+}
+
+function drawWire(button,mask) {
+  let wire=button.querySelector(".wire");
+  if(!wire) {
+    wire=document.createElement("span");
+    wire.className="wire";
+    button.appendChild(wire);
+  }
+  wire.replaceChildren();
+
+  for(let d=0;d<8;d++) {
+    if(!(mask&BITS[d])) continue;
+    const arm=document.createElement("span");
+    arm.className="arm"+(d%2===1?" diagonal":"");
+    arm.style.transform="rotate("+DIRS[d].angle+"deg)";
+    wire.appendChild(arm);
+  }
+  const core=document.createElement("span");
+  core.className="core";
+  wire.appendChild(core);
+}
+
+function renderBoard() {
+  board.replaceChildren();
+
+  cells.forEach((cell,index)=>{
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="cell";
+    button.dataset.index=String(index);
+
+    if(!cell) {
+      button.classList.add("empty");
+      button.disabled=true;
+      button.setAttribute("aria-label","Пустая клетка");
+    } else if(cell.kind==="block") {
+      button.classList.add("block");
+      button.disabled=true;
+      button.setAttribute("aria-label","Препятствие");
+    } else {
+      button.classList.add(cell.kind);
+      button.setAttribute("aria-label",cell.kind==="source"?"Источник энергии":cell.kind==="target"?"Цель":"Повернуть проводник");
+      drawWire(button,cell.mask);
+
+      if(cell.kind!=="wire") {
+        const marker=document.createElement("span");
+        marker.className="marker";
+        marker.textContent=cell.kind==="source"?"⚡":"◎";
+        button.appendChild(marker);
+      }
+
+      button.addEventListener("click",()=>{
+        if(won||cell.fixed) return;
+        undoStack.push({index,mask:cell.mask,moves});
+        if(undoStack.length>100) undoStack.shift();
+        cell.mask=rotateMask(cell.mask);
+        moves++;
+        hintIndex=-1;
+        updateUndoButton();
+        drawWire(button,cell.mask);
+        playTone(440+index*8);
+        vibrate(10);
+        updatePath();
+      });
+    }
+
+    board.appendChild(button);
+  });
+}
+
+function findPath() {
+  const queue=[START];
+  const parent=new Map([[START,-1]]);
+
+  while(queue.length) {
+    const current=queue.shift();
+    if(current===TARGET) {
+      const path=[];
+      let at=TARGET;
+      while(at!==-1) {
+        path.push(at);
+        at=parent.get(at);
+      }
+      return path.reverse();
+    }
+
+    const cell=cells[current];
+    if(!cell) continue;
+
+    for(let d=0;d<8;d++) {
+      if(!(cell.mask&BITS[d])) continue;
+      const next=neighbor(current,d);
+      if(next<0||parent.has(next)) continue;
+      const other=cells[next];
+      if(!other||other.kind==="block") continue;
+      if(!(other.mask&BITS[(d+4)%8])) continue;
+      parent.set(next,current);
+      queue.push(next);
+    }
+  }
+  return null;
+}
+
+function updatePath() {
+  const path=findPath();
+  activePath=path||[];
+  board.querySelectorAll(".cell").forEach((button,index)=>{
+    button.classList.toggle("energized",!!path&&path.includes(index));
+    button.classList.toggle("hint",index===hintIndex);
+    button.classList.toggle("energy-pulse",!!path&&path.includes(index));
+  });
+
+  $("movesLabel").textContent="Ходы: "+moves;
+  updateRecord();
+
+  if(path&&!won) finishLevel();
+  else if(!won) {
+    $("status").textContent="Путь не подключён. Поворачивай проводники!";
+    updateStars(0);
+  }
+}
+
+function calculateStars() {
+  if(moves<=optimalMoves) return 3;
+  if(moves<=optimalMoves+3) return 2;
+  return 1;
+}
+
+function updateStars(count) {
+  starsBox.replaceChildren();
+  for(let i=1;i<=3;i++) {
+    const span=document.createElement("span");
+    span.textContent=i<=count?"★":"☆";
+    if(i<=count) span.className="earned";
+    starsBox.appendChild(span);
+  }
+}
+
+function finishLevel() {
+  won=true;
+  const stars=calculateStars();
+  board.classList.remove("victory");
+  void board.offsetWidth;
+  board.classList.add("victory");
+  playVictory();
+  vibrate([40,30,80]);
+
+  if(isDaily) {
+    saveData.daily[dailyDate]={
+      completed:true,stars,moves,seed:activeSeed
+    };
+    $("status").textContent="⚡ Испытание пройдено! "+stars+" из 3 звёзд.";
+    $("dailyState").textContent="Испытание "+dailyDate+" завершено: "+stars+" звезды.";
+    $("startDailyButton").textContent="Повторить испытание";
+  } else {
+    const key=String(currentLevel);
+    const old=saveData.records[key];
+    if(!old||stars>old.stars||(stars===old.stars&&moves<old.moves)) {
+      saveData.records[key]={stars,moves};
+    }
+    saveData.unlocked=Math.max(saveData.unlocked,Math.min(TOTAL_LEVELS,currentLevel+1));
+    $("status").textContent="⚡ Победа! "+stars+" из 3 звёзд за "+moves+" ходов.";
+    nextLevelButton.textContent=currentLevel<TOTAL_LEVELS?"Следующий уровень →":"Карта завершена";
+    nextLevelButton.classList.remove("hidden");
+  }
+
+  updateStars(stars);
+  checkAchievements();
+  persist();
+  updateHome();
+  updateRecord();
+}
+
+function updateRecord() {
+  const record=isDaily?saveData.daily[dailyDate]:saveData.records[String(currentLevel)];
+  $("bestLabel").textContent=record?"Рекорд: "+record.moves+" ходов":"Рекорд: —";
+}
+
+function updateUndoButton() {
+  $("undoButton").disabled=undoStack.length===0||won;
+}
+
+function undoMove() {
+  if(won||!undoStack.length) return;
+  const previous=undoStack.pop();
+  cells[previous.index].mask=previous.mask;
+  moves=previous.moves;
+  hintIndex=-1;
+  renderBoard();
+  updateUndoButton();
+  updatePath();
+  $("status").textContent="Ход отменён.";
+}
+
+function resetLevel() {
+  startLevel(currentLevel,isDaily);
+}
+
+function showHint() {
+  if(won) {
+    $("status").textContent="Уровень уже пройден.";
+    return;
+  }
+
+  const index=route.find(i=>{
+    const cell=cells[i];
+    return cell&&!cell.fixed&&cell.mask!==cell.solutionMask;
+  });
+
+  if(index===undefined) {
+    $("status").textContent="Все проводники маршрута стоят правильно. Проверь соединения.";
+    return;
+  }
+
+  hintIndex=index;
+  board.querySelectorAll(".cell").forEach((button,i)=>button.classList.toggle("hint",i===index));
+  const turns=turnsToMatch(cells[index].mask,cells[index].solutionMask);
+  $("status").textContent="💡 Выделен проводник. Нужно повернуть его на "+turns+" шаг(а).";
+  vibrate(20);
+}
+
+function totalStars() {
+  return Object.values(saveData.records).reduce((sum,r)=>sum+(r.stars||0),0);
+}
+
+function completedCount() {
+  return Object.keys(saveData.records).filter(key=>{
+    const n=Number(key);
+    return n>=1&&n<=TOTAL_LEVELS;
+  }).length;
+}
+
+function updateHome() {
+  const done=completedCount();
+  const percent=Math.round(done/TOTAL_LEVELS*100);
+  $("homeStars").textContent=totalStars();
+  $("homeProgress").textContent=done+" / "+TOTAL_LEVELS;
+  $("progressText").textContent=percent+"%";
+  $("homeProgressBar").style.width=percent+"%";
+  $("continueButton").textContent="▶ Продолжить · уровень "+Math.min(saveData.unlocked,TOTAL_LEVELS);
+
+  const today=getDateKey();
+  $("dailySummary").textContent=saveData.daily[today]?.completed
+    ?"Сегодняшнее испытание пройдено!"
+    :"Сегодняшнее испытание ещё впереди.";
+}
+
+function openScreen(name) {
+  ["home","map","game","daily","achievements"].forEach(screen=>{
+    $(screen+"Screen").classList.toggle("hidden",screen!==name);
+  });
+  window.scrollTo(0,0);
+}
+
+function showHome() {
+  updateHome();
+  openScreen("home");
+}
+
+function openMap() {
+  renderMap();
+  openScreen("map");
+}
+
+function renderMap() {
+  const grid=$("mapGrid");
+  grid.replaceChildren();
+
+  for(let n=1;n<=TOTAL_LEVELS;n++) {
+    const unlocked=n<=saveData.unlocked;
+    const record=saveData.records[String(n)];
+    const tile=document.createElement("button");
+    tile.type="button";
+    tile.className="level-tile";
+
+    if(!unlocked) {
+      tile.classList.add("locked");
+      tile.disabled=true;
+      tile.innerHTML='<span class="number">🔒</span><span class="mini-stars">—</span>';
+    } else {
+      if(n===saveData.unlocked) tile.classList.add("current");
+      const number=document.createElement("span");
+      number.className="number";
+      number.textContent=String(n);
+      const stars=document.createElement("span");
+      stars.className="mini-stars";
+      stars.textContent=record?"★".repeat(record.stars)+"☆".repeat(3-record.stars):"···";
+      tile.append(number,stars);
+      tile.addEventListener("click",()=>startLevel(n,false));
+    }
+    grid.appendChild(tile);
+  }
+
+  const done=completedCount();
+  $("mapSummary").textContent="Открыто "+saveData.unlocked+" из "+TOTAL_LEVELS+" уровней";
+  $("mapProgressText").textContent=done+" / "+TOTAL_LEVELS;
+  $("mapProgressBar").style.width=(done/TOTAL_LEVELS*100)+"%";
+}
+
+function openDaily() {
+  dailyDate=getDateKey();
+  $("dailyDate").textContent=dailyDate;
+  const record=saveData.daily[dailyDate];
+  $("dailyState").textContent=record?.completed
+    ?"Испытание пройдено: "+record.stars+" звезды."
+    :"Сегодняшнее испытание ещё не пройдено.";
+  $("startDailyButton").textContent=record?.completed?"Повторить испытание":"Начать испытание";
+  openScreen("daily");
+}
+
+function getAchievementStats() {
+  return {
+    completed:completedCount(),
+    stars:totalStars(),
+    daily:Object.values(saveData.daily).filter(d=>d&&d.completed).length,
+    perfect:Object.values(saveData.records).filter(r=>r&&r.stars===3).length
+  };
+}
+
+function checkAchievements() {
+  const stats=getAchievementStats();
+  ACHIEVEMENTS.forEach(a=>{
+    if(!saveData.achievements[a.id]&&a.test(stats)) {
+      saveData.achievements[a.id]=getDateKey();
+      $("status").textContent="🏆 Достижение открыто: "+a.name+"!";
+    }
+  });
+  persist();
+}
+
+function renderAchievements() {
+  const list=$("achievementList");
+  list.replaceChildren();
+  let count=0;
+
+  ACHIEVEMENTS.forEach(a=>{
+    const unlocked=!!saveData.achievements[a.id];
+    if(unlocked) count++;
+
+    const row=document.createElement("div");
+    row.className="item-row";
+
+    const icon=document.createElement("span");
+    icon.className="badge-icon";
+    icon.textContent=unlocked?a.icon:"🔒";
+
+    const content=document.createElement("div");
+    content.style.flex="1";
+    const name=document.createElement("strong");
+    name.textContent=a.name;
+    const desc=document.createElement("small");
+    desc.textContent=a.desc;
+    content.append(name,desc);
+
+    const state=document.createElement("span");
+    state.textContent=unlocked?"✓":"—";
+    state.style.color=unlocked?"var(--mint)":"var(--muted)";
+    row.append(icon,content,state);
+    list.appendChild(row);
+  });
+
+  $("achievementSummary").textContent=count+" из "+ACHIEVEMENTS.length+" открыто";
+}
+
+function playTone(frequency=440,duration=0.07) {
+  if(!saveData.settings.sound) return;
+  try {
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    if(!AudioCtx) return;
+    if(!soundContext) soundContext=new AudioCtx();
+    if(soundContext.state==="suspended") soundContext.resume();
+    const oscillator=soundContext.createOscillator();
+    const gain=soundContext.createGain();
+    oscillator.frequency.value=frequency;
+    oscillator.type="sine";
+    gain.gain.setValueAtTime(0.06,soundContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,soundContext.currentTime+duration);
+    oscillator.connect(gain);
+    gain.connect(soundContext.destination);
+    oscillator.start();
+    oscillator.stop(soundContext.currentTime+duration);
+  } catch(e) {}
+}
+
+function playVictory() {
+  playTone(523,0.12);
+  window.setTimeout(()=>playTone(659,0.12),100);
+  window.setTimeout(()=>playTone(784,0.2),200);
+}
+
+function vibrate(pattern) {
+  if(!saveData.settings.vibration) return;
+  if("vibrate" in navigator) {
+    try { navigator.vibrate(pattern); } catch(e) {}
+  }
+}
+
+function updateSoundButton() {
+  $("soundButton").textContent=saveData.settings.sound?"🔊 Звук: вкл.":"🔇 Звук: выкл.";
+}
+
+$("continueButton").addEventListener("click",()=>startLevel(saveData.unlocked,false));
+$("openMapButton").addEventListener("click",openMap);
+$("mapBack").addEventListener("click",showHome);
+$("mapHome").addEventListener("click",showHome);
+$("gameBack").addEventListener("click",openMap);
+$("gameMapButton").addEventListener("click",openMap);
+$("hintButton").addEventListener("click",showHint);
+$("undoButton").addEventListener("click",undoMove);
+$("resetButton").addEventListener("click",resetLevel);
+$("dailyButton").addEventListener("click",openDaily);
+$("dailyBack").addEventListener("click",showHome);
+$("dailyHome").addEventListener("click",showHome);
+$("startDailyButton").addEventListener("click",()=>startLevel(1,true));
+$("achievementsButton").addEventListener("click",()=>{
+  checkAchievements();
+  renderAchievements();
+  openScreen("achievements");
+});
+$("achievementsBack").addEventListener("click",showHome);
+$("achievementsHome").addEventListener("click",showHome);
+
+$("soundButton").addEventListener("click",()=>{
+  saveData.settings.sound=!saveData.settings.sound;
+  persist();
+  updateSoundButton();
+  if(saveData.settings.sound) playTone();
+});
+
+nextLevelButton.addEventListener("click",()=>{
+  if(!won) return;
+  if(isDaily) {
+    openDaily();
+  } else if(currentLevel<TOTAL_LEVELS) {
+    startLevel(currentLevel+1,false);
+  } else {
+    openMap();
+  }
+});
+
+window.addEventListener("pagehide",persist);
+
+updateSoundButton();
+checkAchievements();
+updateHome();
+openScreen("home");
+</script>
+</body>
+</html>
+
